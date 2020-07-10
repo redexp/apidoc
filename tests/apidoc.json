@@ -1,0 +1,8 @@
+{
+  "include": [
+    "tests/src/**"
+  ],
+  "exclude": [
+    "tests/src/exclude"
+  ]
+}
