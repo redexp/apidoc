@@ -1,2 +1,422 @@
-# apidoc
-Api Doc
+# api-doc-validator
+
+## Annotations
+
+ * [@url](#url)
+ * [@params](#params)
+ * [@query](#query)
+ * [@body](#body)
+ * [@response](#response)
+ * [@call](#call)
+ 
+## Parameters of annotations
+
+ * [METHOD](#method)
+ * [CODE](#CODE)
+ * [path](#path)
+ * [json-schema](#json-schema)
+   * [Number patterns](#number-patterns)
+   * [String patterns](#string-patterns)
+ * [object-method-call](#object-method-call)
+ 
+Parameter in brackets means it's optional, like `[CODE]`
+
+## Usage
+
+ * [cli](#cli)
+ * [Config](#config)
+
+## @url
+
+```
+@url METHOD path
+```
+
+```javascript
+/**
+ * @url POST /path/:param
+ */
+```
+
+## @params
+
+```
+@params json-schema
+```
+
+```javascript
+/**
+ * @url GET /users/:id
+ * @params {
+ *     id: number,
+ * }
+ */
+```
+
+## @query
+
+```
+@query json-schema
+```
+
+```javascript
+/**
+ * @url GET /users?id=1
+ * @query {
+ *     id: number,
+ * }
+ */
+```
+
+## @body
+
+```
+@body json-schema
+```
+
+```javascript
+/**
+ * @body {
+ *     id: number,
+ *     name: string,
+ * }
+ */
+```
+
+## @response
+
+```
+@response [CODE] json-schema
+```
+
+```javascript
+/**
+ * @response {
+ *     id: number,
+ *     name: string,
+ * }
+ */
+```
+
+```javascript
+/**
+ * @response 200 {
+ *     id: number,
+ *     name: string,
+ * }
+ * @response 500 {
+ *     message: string,
+ * }
+ */
+```
+
+## @call
+
+```
+@call object-method-call
+```
+
+```javascript
+/**
+ * @call object.method(param1, param2)
+ */
+```
+
+## METHOD
+
+HTTP request method.
+
+```
+GET|POST|PUT|DELETE|HEAD|OPTIONS
+```
+
+
+## CODE
+
+HTTP response code like **200** or **500** etc. Default is **200**.
+
+
+## path
+
+URL `pathname`. For path parsing used [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) lib.
+
+Parameters like `:id` can be used in `@call` as parameter of method call with same name.
+
+```javascript
+/**
+ * @url GET /users/:id(\d+)
+ * @call users.get(id)
+ */
+```
+
+
+## json-schema
+
+Object that describes how validate another object. For object validation used [ajv](https://www.npmjs.com/package/ajv) 
+lib with few modifications for less code writing.
+
+Default ajv schema
+```javascript
+schema = {
+    id: {
+        type: "number",
+        // extra fields for number: maximum, minimum, exclusiveMaximum, exclusiveMinimum, multipleOf
+    },
+    name: {
+        type: "string",
+        // extra fields for string: maxLength, minLength, pattern, format
+    },
+    enabled: {
+        type: "boolean",
+        // no extra fields
+    },
+    list: {
+        type: "array",
+        // extra fields for array: maxItems, minItems, uniqueItems, items, additionalItems, contains
+    },
+    user: {
+        type: "object",
+        // extra fields for object: maxProperties, minProperties, required, properties, patternProperties, 
+        //                          additionalProperties, dependencies, propertyNames
+    },
+    enumOfStrings: {
+        type: "string",
+        enum: ["user", "guest", "owner"]
+    },
+}
+```
+
+Simplified description of schema
+```javascript
+schema = {
+    id: number,
+    name: string,
+    enabled: boolean,
+    list: [{
+        id: number,
+        type: string,
+    }],
+
+    // or
+
+    list: [{
+        type: "number"
+    }],
+
+    // which means list is array of numbers
+
+    user: {
+        id: number,
+        type: string,
+    },
+    enumOfStrings: "user" || "guest" || "owner",
+}
+```
+
+So, if any object in a schema (including root) has field `type` with one of the string values 
+`"number"`, `"integer"`, `"string"`, `"boolean"`, `"array"`, `"object"` or `"null"` than it means this object is validator.
+In any other cases this object will be converted to `"object"` validator. Example
+```javascript
+schema = {
+    days: [number],
+    list: [{
+        id: number,
+        type: string,
+    }],
+    user: {
+        id: number,
+        type: string,
+    },
+    parent: {
+        type: "object",
+    },
+}
+```
+Will be converted to
+```javascript
+schema = {
+    days: {
+        type: "array",
+        items: {
+            type: "number"
+        }    
+    },
+    list: {
+        type: "array",
+        items: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "number"
+                },
+                type: {
+                    type: "string"
+                },            
+            }   
+        }    
+    },
+    user: {
+        type: "object",
+        properties: {
+            id: {
+                type: "number"
+            },
+            type: {
+                type: "string"
+            },            
+        }   
+    },
+    parent: {
+        type: "object",
+    },
+}
+```
+
+### Number patterns
+
+Instead of short `number` validator you can use one of following number patterns as value of object field.
+
+ * `int` number without floating-point
+ * `positive` positive number including `0`
+ * `negative` negative number excluding `0`
+ * `id` number more than `0`
+
+```javascript
+schema = {
+    id: id,
+    price: positive,
+    list: [int],
+}
+```
+Will be converted to
+```javascript
+schema = {
+    id: {
+        type: "number",
+        minimum: 1,
+    },
+    price: {
+        type: "number",
+        minimum: 0,
+    },
+    list: {
+        type: "array",
+        items: {
+            type: "integer",
+        }
+    },
+}
+```
+
+### String patterns
+
+Instead of short `string` validator you can use one of following string patterns as value of object field.
+
+ * `date` full-date according to RFC3339.
+ * `time` time with optional time-zone.
+ * `date-time` date-time from the same source (time-zone is optional, in ajv it's mandatory)
+ * `date-time-tz` date-time with time-zone required
+ * `uri` full URI.
+ * `uri-reference` URI reference, including full and relative URIs.
+ * `uri-template` URI template according to RFC6570
+ * `email` email address.
+ * `hostname` host name according to RFC1034.
+ * `ipv4` IP address v4.
+ * `ipv6` IP address v6.
+ * `regex` tests whether a string is a valid regular expression by passing it to RegExp constructor.
+ * `uuid` Universally Unique IDentifier according to RFC4122.
+ * patterns from `stringPatterns` option in [config](#config)
+ 
+```javascript
+schema = {
+    id: uuid,
+    email: email,
+    created_at: date-time,
+    days: [date],
+}
+```
+Will be converted to
+```javascript
+schema = {
+    id: {
+        type: "string",
+        format: "uuid",
+    },
+    email: {
+        type: "string",
+        format: "email",
+    },
+    created_at: {
+        type: "string",
+        format: "date-time",
+    },
+    days: {
+        type: "array",
+        items: {
+            type: "string",
+            format: "date",
+        }
+    },
+}
+```
+
+## object-method-call
+
+Uniq sample of JavaScript code with some method call of some object, which will be generated for testing purposes.
+In method call you can use named parameters from `@url`
+```javascript
+/**
+ * @url GET /users
+ * @call users.get()
+ */
+
+/**
+ * @url GET /users/:id
+ * @call users.get(id)
+ */
+
+/**
+ * @url POST /users/:id/settings
+ * @call users.setSettings(id)
+ */
+
+/**
+ * @url POST /users/:id/settings
+ * @call users.settings.update(id)
+ */
+```
+There can be any number of nested objects and any method name. Only names of parameters should be equal.
+
+## CLI
+
+with [npx](https://www.npmjs.com/package/npx)
+
+`npx adv -c path/to/config.json`
+
+or add it to `package.json` to `"scripts":` section
+```
+"scripts": {
+    "adv": "adv"
+}
+```
+and run `npm run adv -c path/to/config.json`
+
+## Config
+
+ * `include` array of paths to files, [glob](https://www.npmjs.com/package/glob) pattern used
+ * `exclude` array of paths to files to be excluded, [glob](https://www.npmjs.com/package/glob) pattern used
+ * `stringPatterns` map of patterns names and regexp to validate strings
+
+```json
+{
+  "include": [
+    "src/**"
+  ],
+  "exclude": [
+    "src/tests"
+  ],
+  "stringPatterns": {
+    "week-day": "/^(sun|mon|tue|wed|thu|fri|sut)$/i"
+  }
+}
+```
