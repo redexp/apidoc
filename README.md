@@ -41,7 +41,7 @@ Parameter in brackets means it's optional, like `[CODE]`
 ## @params
 
 ```
-@params json-schema
+@params [OBJECT_NAME =] json-schema
 ```
 
 ```javascript
@@ -56,7 +56,7 @@ Parameter in brackets means it's optional, like `[CODE]`
 ## @query
 
 ```
-@query json-schema
+@query [OBJECT_NAME =] json-schema
 ```
 
 ```javascript
@@ -71,7 +71,7 @@ Parameter in brackets means it's optional, like `[CODE]`
 ## @body
 
 ```
-@body json-schema
+@body [OBJECT_NAME =] json-schema
 ```
 
 ```javascript
@@ -86,7 +86,7 @@ Parameter in brackets means it's optional, like `[CODE]`
 ## @response
 
 ```
-@response [CODE] json-schema
+@response [CODE] [OBJECT_NAME =] json-schema
 ```
 
 ```javascript
@@ -149,6 +149,9 @@ Parameters like `:id` can be used in `@call` as parameter of method call with sa
  */
 ```
 
+## OBJECT_NAME
+
+Any valid js object name like `objectName` or with field of any deep `objectName.fieldName.field`
 
 ## json-schema
 
