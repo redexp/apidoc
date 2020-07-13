@@ -7,6 +7,7 @@
  * [@query](#query)
  * [@body](#body)
  * [@response](#response)
+ * [@schema](#schema)
  * [@call](#call)
  
 ## Parameters of annotations
@@ -20,6 +21,7 @@
    * [String patterns](#string-patterns)
    * [Inject external schema](#inject-external-schema)
    * [Extend external schema](#extend-external-schema)
+ * [TERNARY](#ternary)
  * [object-method-call](#object-method-call)
  
 Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe sign `|` means `or`, like `json-schema|OBJECT_NAME`.
@@ -46,7 +48,7 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
 Validate parameters of `@url` `path`
 
 ```
-@params [OBJECT_NAME =] json-schema|OBJECT_NAME
+@params [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
 ```
 
 ```javascript
@@ -89,7 +91,7 @@ or extend external schema
 Validate `@url` query parameters
 
 ```
-@query [OBJECT_NAME =] json-schema|OBJECT_NAME
+@query [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
 ```
 
 ```javascript
@@ -105,7 +107,7 @@ Example of valid request `GET /users?id=1`
 ## @body
 
 ```
-@body [OBJECT_NAME =] json-schema|OBJECT_NAME
+@body [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
 ```
 
 ```javascript
@@ -119,10 +121,12 @@ Example of valid request `GET /users?id=1`
 
 ## @response
 
-```
-@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME
-```
+Response http code and validation of response body.
 
+```
+@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
+```
+Response for `200` code
 ```javascript
 /**
  * @response {
@@ -131,7 +135,7 @@ Example of valid request `GET /users?id=1`
  * }
  */
 ```
-
+Validators for different codes of same request
 ```javascript
 /**
  * @response 200 {
@@ -144,7 +148,38 @@ Example of valid request `GET /users?id=1`
  */
 ```
 
+## @schema
+
+Define new schema for future usage
+
+```
+@schema OBJECT_NAME = json-schema|OBJECT_NAME|TERNARY
+```
+
+```javascript
+/**
+ * @schema User = {
+ *     id: number,
+ *     name: string,
+ * }
+ */
+```
+or just to make shorter schema name
+```javascript
+/**
+ * @schema User = SomeVeryLongSchemaName
+ */
+```
+or even condition
+```javascript
+/**
+ * @schema Product = {properties: {price: {minimum: 100}}} ? ExpensiveProduct : CheapProduct
+ */
+```
+
 ## @call
+
+You should provide valid js code of method call. This code will be used in your API tests.
 
 ```
 @call object-method-call
@@ -431,6 +466,79 @@ To extend you can use object spread operator
  *     user: {
  *         ...User,
  *         created_at: date-time,
+ *     },
+ * }
+ */
+```
+or even more than one schema
+```javascript
+/**
+ * @url POST /users
+ * @body {
+ *     action: 'update' || 'delete',
+ *     user: {
+ *         ...User,
+ *         ...UserExtra,
+ *         created_at: date-time,
+ *     },
+ * }
+ */
+```
+
+## TERNARY
+
+You can use ternary operator for conditional validation (see [ajv - if/then/else](https://github.com/ajv-validator/ajv/blob/master/KEYWORDS.md#ifthenelse))
+```javascript
+/**
+ * @url POST /settings
+ * @body {
+ *     type: 'user' || 'account',
+ *     data: {properties: {type: "user"}} ? User : {uuid: string},
+ * }
+ */
+```
+will be converted to
+```javascript
+/**
+ * @url POST /settings
+ * @body {
+ *     type: 'user' || 'account',
+ *     data: {
+ *         "if": {properties: {type: "user"}},
+ *         "then": {
+ *             type: "object",
+ *             properties: {id: "number"}
+ *         },
+ *         "else": {
+ *             type: "object",
+ *             properties: {uuid: "string"}
+ *         },
+ *     },
+ * }
+ */
+```
+or ternary as root
+```javascript
+/**
+ * @url POST /settings
+ * @body {properties: {type: "user"}} ? 
+ *     User : 
+ *     {uuid: string}
+ */
+```
+will be converted to
+```javascript
+/**
+ * @url POST /settings
+ * @body {
+ *     "if": {properties: {type: "user"}},
+ *     "then": {
+ *         type: "object",
+ *         properties: {id: "number"}
+ *     },
+ *     "else": {
+ *         type: "object",
+ *         properties: {uuid: "string"}
  *     },
  * }
  */
