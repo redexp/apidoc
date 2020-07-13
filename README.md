@@ -14,12 +14,15 @@
  * [METHOD](#method)
  * [CODE](#CODE)
  * [path](#path)
+ * [OBJECT_NAME](#object_name)
  * [json-schema](#json-schema)
    * [Number patterns](#number-patterns)
    * [String patterns](#string-patterns)
+   * [Inject external schema](#inject-external-schema)
+   * [Extend external schema](#extend-external-schema)
  * [object-method-call](#object-method-call)
  
-Parameter in brackets means it's optional, like `[CODE]`
+Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe sign `|` means `or`, like `json-schema|OBJECT_NAME`.
 
 ## Usage
 
@@ -40,8 +43,10 @@ Parameter in brackets means it's optional, like `[CODE]`
 
 ## @params
 
+Validate parameters of `@url` `path`
+
 ```
-@params [OBJECT_NAME =] json-schema
+@params [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -52,26 +57,55 @@ Parameter in brackets means it's optional, like `[CODE]`
  * }
  */
 ```
+or with `OBJECT_NAME` assing for future use
+```javascript
+/**
+ * @url GET /users/:id
+ * @params User = {
+ *     id: number,
+ * }
+ */
+```
+or use external schema as root schema
+```javascript
+/**
+ * @url GET /users/:id
+ * @params User
+ */
+```
+or extend external schema
+```javascript
+/**
+ * @url GET /users/:id
+ * @params {
+ *     ...User,
+ *     name: string,
+ * }
+ */
+```
 
 ## @query
 
+Validate `@url` query parameters
+
 ```
-@query [OBJECT_NAME =] json-schema
+@query [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
 /**
- * @url GET /users?id=1
+ * @url GET /users
  * @query {
  *     id: number,
  * }
  */
 ```
+Example of valid request `GET /users?id=1`
 
 ## @body
 
 ```
-@body [OBJECT_NAME =] json-schema
+@body [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -86,7 +120,7 @@ Parameter in brackets means it's optional, like `[CODE]`
 ## @response
 
 ```
-@response [CODE] [OBJECT_NAME =] json-schema
+@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -361,6 +395,45 @@ schema = {
         }
     },
 }
+```
+
+### Inject external schema
+
+Using `OBJECT_NAME` you can inject external schema in current schema. 
+```javascript
+/**
+ * @url GET /users/:id
+ * @response User = {
+ *     id: number,
+ *     name: string,
+ * }
+ */
+```
+
+```javascript
+/**
+ * @url POST /users
+ * @body {
+ *     action: 'update' || 'delete',
+ *     user: User,
+ * }
+ */
+```
+
+### Extend external schema
+
+To extend you can use object spread operator
+```javascript
+/**
+ * @url POST /users
+ * @body {
+ *     action: 'update' || 'delete',
+ *     user: {
+ *         ...User,
+ *         created_at: date-time,
+ *     },
+ * }
+ */
 ```
 
 ## object-method-call
