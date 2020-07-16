@@ -1,5 +1,8 @@
 /**
  * @url POST /some/path
+ * @body {}
+ * @response 200 {}
+ * @response 500 {}
  */
 app.post('/some/path');
 

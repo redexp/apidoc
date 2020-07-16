@@ -1,33 +1,51 @@
-const babel = require('@babel/core');
 const parser = require('@babel/parser');
-const traverse = require('@babel/traverse').default;
-const template = require('@babel/template').default;
-const t = require('@babel/types');
 const fs = require('fs');
+const parseAnnotations = require('./lib/parseAnnotations');
+const parseEndpoint = require('./lib/parseEndpoint');
 
-const annotationRule = /^@[\w\-]+/m;
-
-module.exports = function convert(files) {
+module.exports = async function convert(files) {
 	if (files && !Array.isArray(files)) {
 		files = [files];
 	}
 
-	files.forEach(function (file) {
-		fs.readFile(file, function (err, code) {
-			code = code.toString();
+	var groups = new Set();
 
-			var ast = parser.parse(code, {
-				sourceType: "unambiguous",
-				strictMode: false
-			});
+	await Promise.all(files.map(function (file) {
+		return new Promise(function (done, fail) {
+			fs.readFile(file, function (err, code) {
+				if (err) {
+					fail(err);
+					return;
+				}
 
-			ast.comments.forEach(function (comment) {
-				var text = comment.value.replace(/^\s*\*?/umg, '').replace(/^\s+/mg, '').trim();
+				code = code.toString();
 
-				if (!annotationRule.test(text)) return;
+				var ast = parser.parse(code, {
+					sourceType: "unambiguous",
+					strictMode: false
+				});
 
+				ast.comments.forEach(function (comment) {
+					var list = parseAnnotations(comment.value);
 
+					if (!list.some(item => item.name === 'url' || item.name === 'schema')) {
+						return;
+					}
+
+					groups.add(list);
+				});
+
+				done();
 			});
 		});
+	}));
+
+	var endpoints = new Set();
+
+	groups.forEach(function (group) {
+		endpoints.add(parseEndpoint(group));
+		groups.delete(group);
 	});
+
+
 };
