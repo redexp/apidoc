@@ -266,14 +266,12 @@ schema = {
     id: number,
     name: string,
     enabled: boolean,
-    list: [{
+    listOfObjects: [{
         id: number,
         type: string,
     }],
 
-    // or
-
-    list: [{
+    listOfNumbers: [{
         type: "number"
     }],
 

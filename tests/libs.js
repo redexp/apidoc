@@ -72,12 +72,14 @@ describe('parseSchema', function () {
 				}],
 				enumInt: 1 || 2 || 3,
 				enumStr: "user" || "account" || "item",
+				any_of: number || string || int,
+				all_of: number && string && int,
 			}
 		`);
 
 		expect(res).to.equal(`{
   "type": "object",
-  "required": ["id", "name", "listInt", "listStr", "listObj", "enumInt", "enumStr"],
+  "required": ["id", "name", "listInt", "listStr", "listObj", "enumInt", "enumStr", "any_of", "all_of"],
   "properties": {
     id: {
       "type": "number"
@@ -119,6 +121,24 @@ describe('parseSchema', function () {
     enumStr: {
       "type": "string",
       "enum": ["user", "account", "item"]
+    },
+    any_of: {
+      "anyOf": [{
+        "type": "number"
+      }, {
+        "type": "string"
+      }, {
+        "type": "integer"
+      }]
+    },
+    all_of: {
+      "allOf": [{
+        "type": "number"
+      }, {
+        "type": "string"
+      }, {
+        "type": "integer"
+      }]
     }
   }
 }`);
@@ -287,12 +307,69 @@ describe('parseSchema', function () {
 		expect(res).to.equal(test3);
 	});
 
-	it('OBJECT_NAME = TERNARY', function () {
-		const ternary = `{properties: {type: "user"}} ? User : {uuid: string}`;
+	it(`OBJECT_NAME && OBJECT_NAME`, function () {
+		parseSchema(`One = {test1: string}`);
+		parseSchema(`Two = {test2: string}`);
+		parseSchema(`Three = {test3: string}`);
 
-		parseSchema(`Schema = ${ternary}`);
-		parseSchema(`Schema.field = ${ternary}`);
-		parseSchema(`Schema.field1.field2 = ${ternary}`);
+		var res = parseSchema(`AllOf = One && Two && Three`);
+
+		expect(res).to.equal(parseSchema('AllOf')).and.to.equal(`{
+  "allOf": [{
+    "type": "object",
+    "required": ["test1"],
+    "properties": {
+      test1: {
+        "type": "string"
+      }
+    }
+  }, {
+    "type": "object",
+    "required": ["test2"],
+    "properties": {
+      test2: {
+        "type": "string"
+      }
+    }
+  }, {
+    "type": "object",
+    "required": ["test3"],
+    "properties": {
+      test3: {
+        "type": "string"
+      }
+    }
+  }]
+}`);
+		res = parseSchema(`AnyOf = One || Two || Three`);
+
+		expect(res).to.equal(parseSchema('AnyOf')).and.to.equal(`{
+  "anyOf": [{
+    "type": "object",
+    "required": ["test1"],
+    "properties": {
+      test1: {
+        "type": "string"
+      }
+    }
+  }, {
+    "type": "object",
+    "required": ["test2"],
+    "properties": {
+      test2: {
+        "type": "string"
+      }
+    }
+  }, {
+    "type": "object",
+    "required": ["test3"],
+    "properties": {
+      test3: {
+        "type": "string"
+      }
+    }
+  }]
+}`);
 	});
 });
 
