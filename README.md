@@ -17,11 +17,13 @@
  * [path](#path)
  * [OBJECT_NAME](#object_name)
  * [json-schema](#json-schema)
+   * [Optional object fields](#optional-object-fields)
    * [Number patterns](#number-patterns)
    * [String patterns](#string-patterns)
    * [Inject external schema](#inject-external-schema)
-   * [Extend external schema](#extend-external-schema)
- * [TERNARY](#ternary)
+   * [anyOf schema](#anyof-schema)
+   * [allOf schema](#allof-schema)
+   * [Extend schema](#extend-schema)
  * [object-method-call](#object-method-call)
  
 Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe sign `|` means `or`, like `json-schema|OBJECT_NAME`.
@@ -48,7 +50,7 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
 Validate parameters of `@url` `path`
 
 ```
-@params [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
+@params [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -91,7 +93,7 @@ or extend external schema
 Validate `@url` query parameters
 
 ```
-@query [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
+@query [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -107,7 +109,7 @@ Example of valid request `GET /users?id=1`
 ## @body
 
 ```
-@body [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
+@body [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -124,7 +126,7 @@ Example of valid request `GET /users?id=1`
 Response http code and validation of response body.
 
 ```
-@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME|TERNARY
+@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 Response for `200` code
 ```javascript
@@ -153,7 +155,7 @@ Validators for different codes of same request
 Define new schema for future usage
 
 ```
-@schema OBJECT_NAME = json-schema|OBJECT_NAME|TERNARY
+@schema OBJECT_NAME = json-schema|OBJECT_NAME
 ```
 
 ```javascript
@@ -317,6 +319,7 @@ schema = {
         type: "array",
         items: {
             type: "object",
+            required: ["id", "type"],
             properties: {
                 id: {
                     type: "number"
@@ -329,6 +332,7 @@ schema = {
     },
     user: {
         type: "object",
+        required: ["id", "type"],
         properties: {
             id: {
                 type: "number"
@@ -340,6 +344,26 @@ schema = {
     },
     parent: {
         type: "object",
+    },
+}
+```
+
+### Optional object fields
+
+By default, all fields in an object are required. To make field optional just put it in brackets.
+```javascript
+schema = {
+    id: number,
+    [name]: string,
+}
+```
+```javascript
+schema = {
+    type: "object",
+    required: ["id"],
+    properties: {
+        id: {type: "number"},
+        name: {type: "string"},
     },
 }
 ```
@@ -455,93 +479,93 @@ Using `OBJECT_NAME` you can inject external schema in current schema.
  */
 ```
 
-### Extend external schema
+### anyOf schema
+
+Instead of `anyOf` you can use `||` operator
+```javascript
+schema = {
+    data: User || Account || {type: "object"}
+}
+```
+will be
+```javascript
+schema = {
+    type: "object",
+    properties: {
+        data: {
+            anyOf: [
+                {/* schema of User */},
+                {/* schema of Account */},
+                {type: "object"},
+            ]
+        }
+    }
+}
+```
+
+### allOf schema
+
+Instead of `allOf` you can use `&&` operator
+```javascript
+schema = {
+    data: User && Account && {type: "object"}
+}
+```
+will be
+```javascript
+schema = {
+    type: "object",
+    properties: {
+        data: {
+            allOf: [
+                {/* schema of User */},
+                {/* schema of Account */},
+                {type: "object"},
+            ]
+        }
+    }
+}
+```
+ 
+
+### Extend schema
 
 To extend you can use object spread operator
 ```javascript
-/**
- * @url POST /users
- * @body {
- *     action: 'update' || 'delete',
- *     user: {
- *         ...User,
- *         created_at: date-time,
- *     },
- * }
- */
-```
-or even more than one schema
-```javascript
-/**
- * @url POST /users
- * @body {
- *     action: 'update' || 'delete',
- *     user: {
- *         ...User,
- *         ...UserExtra,
- *         created_at: date-time,
- *     },
- * }
- */
-```
+User = {
+    id: number,
+    data: string,
+}
 
-## TERNARY
+UserExtra = {
+    name: string,
+    created_at: date,
+}
 
-You can use ternary operator for conditional validation (see [ajv - if/then/else](https://github.com/ajv-validator/ajv/blob/master/KEYWORDS.md#ifthenelse))
-```javascript
-/**
- * @url POST /settings
- * @body {
- *     type: 'user' || 'account',
- *     data: {properties: {type: "user"}} ? User : {uuid: string},
- * }
- */
+schema = {
+    user: {
+        ...User,
+        ...UserExtra,
+        data: undefined, // remove field
+        created_at: date-time, // overwrite field
+    },
+}
 ```
-will be converted to
+will be
 ```javascript
-/**
- * @url POST /settings
- * @body {
- *     type: 'user' || 'account',
- *     data: {
- *         "if": {properties: {type: "user"}},
- *         "then": {
- *             type: "object",
- *             properties: {id: "number"}
- *         },
- *         "else": {
- *             type: "object",
- *             properties: {uuid: "string"}
- *         },
- *     },
- * }
- */
-```
-or ternary as root
-```javascript
-/**
- * @url POST /settings
- * @body {properties: {type: "user"}} ? 
- *     User : 
- *     {uuid: string}
- */
-```
-will be converted to
-```javascript
-/**
- * @url POST /settings
- * @body {
- *     "if": {properties: {type: "user"}},
- *     "then": {
- *         type: "object",
- *         properties: {id: "number"}
- *     },
- *     "else": {
- *         type: "object",
- *         properties: {uuid: "string"}
- *     },
- * }
- */
+schema = {
+    type: "object",
+    properties: {
+        user: {
+            type: "object",
+            properties: {
+                id: {type: "number"},
+                name: {type: "string"},
+                created_at: {type: "string", format: "date-time"},
+            }
+        },
+    },
+}
 ```
 
 ## object-method-call
