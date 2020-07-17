@@ -251,7 +251,7 @@ describe('parseSchema', function () {
 }`;
 		var test3 = `{
   "type": "object",
-  "required": ["test2"],
+  "required": ["test3"],
   "properties": {
     test3: {
       "type": "string"
@@ -369,6 +369,65 @@ describe('parseSchema', function () {
       }
     }
   }]
+}`);
+	});
+
+	it(`Extend schema`, function () {
+		parseSchema(`One = {test1: string, field: string}`);
+		parseSchema(`Two = {test1: number, name: string}`);
+		parseSchema(`Three = {test3: string, [test4]: string, [wasReq]: string, [wasOpt]: string}`);
+		parseSchema(`Four = {type: "object", testOption1: "test1", testOption2: "test2"}`);
+		parseSchema(`Five = {type: "object", testOption1: "testA", testOption3: "test3", properties: {test5: {type: "string"}}}`);
+
+		var res = parseSchema(`{
+			id: number,
+			field: number,
+			wasReq: number,
+			...One,
+			...Two,
+			...Three,
+			...Four,
+			...Five,
+			name: undefined,
+			wasOpt: number,
+			date: string,
+		}`);
+
+		expect(res).to.equal(`{
+  "type": "object",
+  "required": ["id", "field", "test1", "test3", "wasOpt", "date"],
+  "properties": {
+    id: {
+      "type": "number"
+    },
+    field: {
+      "type": "string"
+    },
+    test1: {
+      "type": "number"
+    },
+    test3: {
+      "type": "string"
+    },
+    test4: {
+      "type": "string"
+    },
+    wasReq: {
+      "type": "string"
+    },
+    test5: {
+      type: "string"
+    },
+    wasOpt: {
+      "type": "number"
+    },
+    date: {
+      "type": "string"
+    }
+  },
+  testOption1: "testA",
+  testOption2: "test2",
+  testOption3: "test3"
 }`);
 	});
 });
