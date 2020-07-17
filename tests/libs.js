@@ -62,6 +62,7 @@ describe('parseSchema', function () {
 			{
 				id: number,
 				name: string,
+				[optional]: string,
 				listInt: [int],
 				listStr: [{
 					type: "string"
@@ -76,11 +77,15 @@ describe('parseSchema', function () {
 
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["id", "name", "listInt", "listStr", "listObj", "enumInt", "enumStr"],
   "properties": {
     id: {
       "type": "number"
     },
     name: {
+      "type": "string"
+    },
+    optional: {
       "type": "string"
     },
     listInt: {
@@ -99,6 +104,7 @@ describe('parseSchema', function () {
       "type": "array",
       "items": {
         "type": "object",
+        "required": ["type"],
         "properties": {
           type: {
             "type": "string"
@@ -125,6 +131,7 @@ describe('parseSchema', function () {
 		expect(!!schemas.getAst('Schema')).to.be.true;
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test1"],
   "properties": {
     test1: {
       "type": "string"
@@ -137,6 +144,7 @@ describe('parseSchema', function () {
 		expect(!!schemas.getAst('Schema.field')).to.be.true;
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test2"],
   "properties": {
     test2: {
       "type": "string"
@@ -148,6 +156,7 @@ describe('parseSchema', function () {
 		expect(!!schemas.getAst('Schema.field1.field2')).to.be.true;
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test3"],
   "properties": {
     test3: {
       "type": "string"
@@ -166,6 +175,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema`);
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test1"],
   "properties": {
     test1: {
       "type": "string"
@@ -176,6 +186,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field`);
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test2"],
   "properties": {
     test2: {
       "type": "string"
@@ -186,6 +197,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field1.field2`);
 		expect(res).to.equal(`{
   "type": "object",
+  "required": ["test3"],
   "properties": {
     test3: {
       "type": "string"
@@ -201,6 +213,7 @@ describe('parseSchema', function () {
 
 		var test1 = `{
   "type": "object",
+  "required": ["test1"],
   "properties": {
     test1: {
       "type": "string"
@@ -209,6 +222,7 @@ describe('parseSchema', function () {
 }`;
 		var test2 = `{
   "type": "object",
+  "required": ["test2"],
   "properties": {
     test2: {
       "type": "string"
@@ -217,6 +231,7 @@ describe('parseSchema', function () {
 }`;
 		var test3 = `{
   "type": "object",
+  "required": ["test2"],
   "properties": {
     test3: {
       "type": "string"
@@ -270,10 +285,6 @@ describe('parseSchema', function () {
 		expect(res).to.equal(test3);
 		res = parseSchema(`Schema.field1.field2`);
 		expect(res).to.equal(test3);
-	});
-
-	it('TERNARY', function () {
-		parseSchema(`{properties: {type: "user"}} ? User : {uuid: string}`);
 	});
 
 	it('OBJECT_NAME = TERNARY', function () {
