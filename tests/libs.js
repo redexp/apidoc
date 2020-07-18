@@ -62,6 +62,7 @@ describe('parseSchema', function () {
 			{
 				id: number,
 				name: string,
+				date: date-time-tz,
 				[optional]: string,
 				listInt: [int],
 				listStr: [{
@@ -79,13 +80,17 @@ describe('parseSchema', function () {
 
 		expect(res).to.equal(`{
   "type": "object",
-  "required": ["id", "name", "listInt", "listStr", "listObj", "enumInt", "enumStr", "any_of", "all_of"],
+  "required": ["id", "name", "date", "listInt", "listStr", "listObj", "enumInt", "enumStr", "any_of", "all_of"],
   "properties": {
     id: {
       "type": "number"
     },
     name: {
       "type": "string"
+    },
+    date: {
+      "type": "string",
+      "format": "date-time"
     },
     optional: {
       "type": "string"
