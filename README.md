@@ -624,6 +624,15 @@ or add it to `package.json` to `"scripts":` section
 ```
 and run `npm run adv -c path/to/config.json`
 
+Parameters:
+
+```
+  -c, --config <path>   path to config json file
+  -t, --tests <path>    generate validator for tests
+  -h, --host <address>  host for tests requests
+  --help                display help for command
+```
+
 ## Config
 
  * `include` array of paths to files relative to config path, [glob](https://www.npmjs.com/package/glob) pattern used
