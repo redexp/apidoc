@@ -59,6 +59,7 @@ Validate parameters of `@url` `path`
  * @params {
  *     id: number,
  * }
+ * @call users.get(id)
  */
 ```
 or with `OBJECT_NAME` assing for future use
@@ -102,9 +103,24 @@ Validate `@url` query parameters
  * @query {
  *     id: number,
  * }
+ * @call users.get(id)
  */
 ```
 Example of valid request `GET /users?id=1`
+
+Names of fields in `@params` and `query` should be different to use them in `@call`
+```javascript
+/**
+ * @url GET /users/:id
+ * @params {
+ *     id: number,
+ * }
+ * @query {
+ *     name: string,
+ * }
+ * @call users.get(id, name)
+ */
+```
 
 ## @body
 
@@ -419,7 +435,6 @@ Instead of short `string` validator you can use one of following string patterns
  * `ipv6` IP address v6.
  * `regex` tests whether a string is a valid regular expression by passing it to RegExp constructor.
  * `uuid` Universally Unique IDentifier according to RFC4122.
- * patterns from `stringPatterns` option in [config](#config)
  
 ```javascript
 schema = {
@@ -609,9 +624,10 @@ and run `npm run adv -c path/to/config.json`
 
 ## Config
 
- * `include` array of paths to files, [glob](https://www.npmjs.com/package/glob) pattern used
- * `exclude` array of paths to files to be excluded, [glob](https://www.npmjs.com/package/glob) pattern used
- * `stringPatterns` map of patterns names and regexp to validate strings
+ * `include` array of paths to files relative to config path, [glob](https://www.npmjs.com/package/glob) pattern used
+ * `exclude` array of paths to files to be excluded
+ * `host` base url address for tests requests
+ * `tests` path for output file of tests requests
 
 ```json
 {
@@ -621,8 +637,7 @@ and run `npm run adv -c path/to/config.json`
   "exclude": [
     "src/tests"
   ],
-  "stringPatterns": {
-    "week-day": "/^(sun|mon|tue|wed|thu|fri|sut)$/i"
-  }
+  "host": "https://api.openweathermap.org",
+  "tests": "output/tests.js"
 }
 ```

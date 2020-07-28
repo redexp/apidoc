@@ -1,0 +1,3 @@
+/**
+ * @schema Test = {id: number}
+ */

@@ -1,8 +1,11 @@
 {
   "include": [
-    "tests/src/**"
+    "src/**"
   ],
   "exclude": [
-    "tests/src/exclude"
-  ]
+    "src/exclude"
+  ],
+  "host": "https://samples.openweathermap.org",
+  "tests": "output/tests.js",
+  "express": "output/express.js"
 }

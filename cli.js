@@ -1,11 +1,16 @@
 const {program} = require('commander');
 const fs = require('fs');
-const {join} = require('path');
-const glob = require('glob');
-const convert = require('./index');
+const {resolve, dirname} = require('path');
+const getFiles = require('./lib/getFiles');
+const filesToEndpoints = require('./lib/filesToEndpoints');
+const generateTests = require('./lib/generate/tests');
 
 program
-	.requiredOption('-c, --config <path>', 'path to config json file');
+	.requiredOption('-c, --config <path>', 'path to config json file')
+	.option('-t, --tests <path>', 'generate validator for tests')
+	.option('-e, --express <path>', 'generate validator for express')
+	.option('-h, --host <address>', 'host for tests requests')
+;
 
 program.parse(process.argv);
 
@@ -15,7 +20,18 @@ if (!fs.existsSync(configPath)) {
 	throw new Error('config file not found: ' + JSON.stringify(configPath));
 }
 
+const configDir = dirname(configPath);
 const config = JSON.parse(fs.readFileSync(configPath).toString());
+
+if (!config.include) {
+	throw new Error(`config.include is required`);
+}
+
+config.include = config.include.map(path => resolve(configDir, path));
+config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
+config.tests = program.tests || (config.tests && resolve(configDir, config.tests));
+config.express = program.express || (config.express && resolve(configDir, config.express));
+config.host = program.host || config.host;
 
 var files = getFiles(config.include);
 
@@ -27,16 +43,19 @@ if (config.exclude) {
 	});
 }
 
-convert(files);
-
-function getFiles(pathList) {
-	return pathList.reduce(function (list, path) {
-		if (fs.existsSync(path) && fs.lstatSync(path).isDirectory()) {
-			path = join(path, '**');
+filesToEndpoints(files)
+	.then(function (endpoints) {
+		if (config.tests) {
+			return generateTests(config.tests, {
+				host: config.host,
+				endpoints: endpoints.filter(e => !!e.call),
+			});
 		}
-
-		return list.concat(glob.sync(path, {
-			nodir: true
-		}));
-	}, []);
-}
+	})
+	.then(function () {
+		process.exit();
+	})
+	.catch(function (err) {
+		console.error(err);
+		process.exit(1);
+	});
