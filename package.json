@@ -1,10 +1,13 @@
 {
   "name": "api-doc-validator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "api doc and validator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --ui bdd ./tests"
+  },
+  "bin": {
+    "adv": "./cli.js"
   },
   "repository": {
     "type": "git",
