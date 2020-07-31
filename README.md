@@ -190,12 +190,6 @@ or just to make shorter schema name
  * @schema User = SomeVeryLongSchemaName
  */
 ```
-or even condition
-```javascript
-/**
- * @schema Product = {properties: {price: {minimum: 100}}} ? ExpensiveProduct : CheapProduct
- */
-```
 
 ## @call
 
@@ -213,7 +207,7 @@ You should provide valid js code of method call. This code will be used in your 
 
 ## METHOD
 
-HTTP request method.
+HTTP request method. Default is [config.defaultMethod](#config)
 
 ```
 GET|POST|PUT|DELETE|HEAD|OPTIONS
@@ -222,8 +216,20 @@ GET|POST|PUT|DELETE|HEAD|OPTIONS
 
 ## CODE
 
-HTTP response code like **200** or **500** etc. Default is **200**.
+HTTP response code. Default is [config.defaultCode](#config)
 
+Formats:
+ * `200` regular code number
+ * `2xx` any code between 200 and 299
+ * `200 - 400` any code between 200 and 400
+ * `200 || 3xx || 400 - 500` or expression 
+ 
+Example
+```javascript
+/**
+ * @response 2xx || 301 User = {id: number}
+ */
+```
 
 ## path
 
@@ -250,31 +256,34 @@ lib with few modifications for less code writing.
 Default ajv schema
 ```javascript
 schema = {
-    id: {
-        type: "number",
-        // extra fields for number: maximum, minimum, exclusiveMaximum, exclusiveMinimum, multipleOf
-    },
-    name: {
-        type: "string",
-        // extra fields for string: maxLength, minLength, pattern, format
-    },
-    enabled: {
-        type: "boolean",
-        // no extra fields
-    },
-    list: {
-        type: "array",
-        // extra fields for array: maxItems, minItems, uniqueItems, items, additionalItems, contains
-    },
-    user: {
-        type: "object",
-        // extra fields for object: maxProperties, minProperties, required, properties, patternProperties, 
-        //                          additionalProperties, dependencies, propertyNames
-    },
-    enumOfStrings: {
-        type: "string",
-        enum: ["user", "guest", "owner"]
-    },
+    type: "object",
+    properties: {
+        id: {
+            type: "number",
+            // extra fields for number: maximum, minimum, exclusiveMaximum, exclusiveMinimum, multipleOf
+        },
+        name: {
+            type: "string",
+            // extra fields for string: maxLength, minLength, pattern, format
+        },
+        enabled: {
+            type: "boolean",
+            // no extra fields
+        },
+        list: {
+            type: "array",
+            // extra fields for array: maxItems, minItems, uniqueItems, items, additionalItems, contains
+        },
+        user: {
+            type: "object",
+            // extra fields for object: maxProperties, minProperties, required, properties, patternProperties, 
+            //                          additionalProperties, dependencies, propertyNames
+        },
+        enumOfStrings: {
+            type: "string",
+            enum: ["user", "guest", "owner"]
+        },
+    }
 }
 ```
 
@@ -325,15 +334,30 @@ schema = {
 Will be converted to
 ```javascript
 schema = {
-    days: {
-        type: "array",
-        items: {
-            type: "number"
-        }    
-    },
-    list: {
-        type: "array",
-        items: {
+    type: "object",
+    properties: {
+        days: {
+            type: "array",
+            items: {
+                type: "number"
+            }    
+        },
+        list: {
+            type: "array",
+            items: {
+                type: "object",
+                required: ["id", "type"],
+                properties: {
+                    id: {
+                        type: "number"
+                    },
+                    type: {
+                        type: "string"
+                    },            
+                }   
+            }    
+        },
+        user: {
             type: "object",
             required: ["id", "type"],
             properties: {
@@ -344,23 +368,11 @@ schema = {
                     type: "string"
                 },            
             }   
-        }    
-    },
-    user: {
-        type: "object",
-        required: ["id", "type"],
-        properties: {
-            id: {
-                type: "number"
-            },
-            type: {
-                type: "string"
-            },            
-        }   
-    },
-    parent: {
-        type: "object",
-    },
+        },
+        parent: {
+            type: "object",
+        },
+    }
 }
 ```
 
@@ -403,19 +415,22 @@ schema = {
 Will be converted to
 ```javascript
 schema = {
-    id: {
-        type: "number",
-        minimum: 1,
-    },
-    price: {
-        type: "number",
-        minimum: 0,
-    },
-    list: {
-        type: "array",
-        items: {
-            type: "integer",
-        }
+    type: "object",
+    properties: {
+        id: {
+            type: "number",
+            minimum: 1,
+        },
+        price: {
+            type: "number",
+            minimum: 0,
+        },
+        list: {
+            type: "array",
+            items: {
+                type: "integer",
+            }
+        },
     },
 }
 ```
@@ -433,10 +448,11 @@ Instead of short `string` validator you can use one of following string patterns
  * `uri-template` URI template according to RFC6570
  * `email` email address.
  * `hostname` host name according to RFC1034.
+ * `filename` name (words with dashes) with or without extension
  * `ipv4` IP address v4.
  * `ipv6` IP address v6.
  * `regex` tests whether a string is a valid regular expression by passing it to RegExp constructor.
- * `uuid` Universally Unique IDentifier according to RFC4122.
+ * `uuid` Universally Unique Identifier according to RFC4122.
  
 ```javascript
 schema = {
@@ -449,25 +465,28 @@ schema = {
 Will be converted to
 ```javascript
 schema = {
-    id: {
-        type: "string",
-        format: "uuid",
-    },
-    email: {
-        type: "string",
-        format: "email",
-    },
-    created_at: {
-        type: "string",
-        format: "date-time",
-    },
-    days: {
-        type: "array",
-        items: {
+    type: "object",
+    properties: {
+        id: {
             type: "string",
-            format: "date",
-        }
-    },
+            format: "uuid",
+        },
+        email: {
+            type: "string",
+            format: "email",
+        },
+        created_at: {
+            type: "string",
+            format: "date-time",
+        },
+        days: {
+            type: "array",
+            items: {
+                type: "string",
+                format: "date",
+            }
+        },
+    }
 }
 ```
 
@@ -637,18 +656,34 @@ Parameters:
 
  * `include` array of paths to files relative to config path, [glob](https://www.npmjs.com/package/glob) pattern used
  * `exclude` array of paths to files to be excluded
+ * `import` array of external api doc configs
+   * `prefix` OBJECT_NAME which will be added before each OBJECT_NAME of imported schemas. 
+     If you name it with dot in the end like `Ext.` then imported schemas will have names like `Ext.User`.
+     If you name it without dot like `Ext` then name will be `ExtUser`.
+   * `path` path to external config file
  * `host` base url address for tests requests
  * `tests` path for output file of tests requests
+ * `defaultMethod` overwrites default [METHOD](#method). Default is `GET`
+ * `defaultCode` overwrites default [CODE](#code). Default is `2xx`
 
+Example
 ```json
 {
   "include": [
-    "src/**"
+    "src/**/*.js"
   ],
   "exclude": [
     "src/tests"
   ],
+  "import": [
+    {
+      "prefix": "Ext.",
+      "path": "../external-project/apidoc.json"
+    }
+  ],
   "host": "https://api.openweathermap.org",
-  "tests": "output/tests.js"
+  "tests": "output/tests.js",
+  "defaultMethod": "POST",
+  "defaultCode": "2xx || 301"
 }
 ```
