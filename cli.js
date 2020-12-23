@@ -4,6 +4,7 @@ const {resolve, dirname} = require('path');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
 const generateTests = require('./lib/generate/tests');
+const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 
 program
 	.requiredOption('-c, --config <path>', 'path to config json file')
@@ -45,12 +46,26 @@ if (config.exclude) {
 
 filesToEndpoints(files)
 	.then(function (endpoints) {
+		var promises = [];
+
 		if (config.tests) {
-			return generateTests(config.tests, {
-				host: config.host,
-				endpoints: endpoints.filter(e => !!e.call),
-			});
+			promises.push(
+				generateTests(config.tests, {
+					host: config.host,
+					endpoints: endpoints.filter(e => !!e.call),
+				})
+			);
 		}
+
+		if (config.express) {
+			promises.push(
+				generateExpressMiddleware(config.express, {
+					endpoints,
+				})
+			);
+		}
+
+		return Promise.all(promises);
 	})
 	.then(function () {
 		process.exit();

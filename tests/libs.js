@@ -541,20 +541,49 @@ describe('annotations', function () {
 		var data = response.prepare(`{id: number}`);
 
 		expect(data).to.eql({
-			code: 200,
+			code: {
+				type: 'number',
+				const: 200,
+			},
 			schema: `{id: number}`,
 		});
 
 		data = response.prepare(`300 {id: int}`);
 
 		expect(data).to.eql({
-			code: 300,
+			code: {
+				type: 'number',
+				const: 300,
+			},
 			schema: `{id: int}`,
+		});
+
+		data = response.prepare(`200 || 3xx || 400 - 500 User = {id: uuid}`);
+
+		expect(data).to.eql({
+			code: {
+				anyOf: [
+					{
+						type: 'number',
+						const: 200,
+					},
+					{
+						type: 'string',
+						pattern: '^3\\d\\d$',
+					},
+					{
+						type: 'number',
+						minimum: 400,
+						maximum: 500,
+					},
+				]
+			},
+			schema: `User = {id: uuid}`,
 		});
 	});
 });
 
-describe('generate tests', function () {
+describe('generate', function () {
 	it('test', function () {
 		const endpointToTest = require('../lib/endpointToTest');
 		const call = require('../lib/annotations/call');
@@ -611,5 +640,143 @@ module.exports.test = createTestRequest({
   "body": {}
 });
 `);
+	});
+
+	it('express', function (done) {
+		this.timeout(5000);
+
+		const filesToEndpoints = require('../lib/filesToEndpoints');
+		const generator = require('../lib/generate/expressMiddleware');
+		const {resolve} = require('path');
+		const {application, request, response} = require('express');
+
+		filesToEndpoints([resolve(__dirname, 'src', 'src1.js'), resolve(__dirname, 'src', 'sub1', 'sub2', 'sub2.js')])
+			.then(function (endpoints) {
+				generator(resolve(__dirname, 'output', 'expressMiddleware.js'), {
+					endpoints
+				});
+			})
+			.then(async function () {
+				const test = require('./output/expressMiddleware');
+
+				const runTest = function (reqData, code, resBody) {
+					return new Promise(function (done) {
+						const app = Object.assign(Object.create(application), {
+							settings: {}
+						});
+
+						const req = Object.assign(Object.create(request), reqData, {app});
+
+						const res = Object.assign(Object.create(response), {
+							app,
+							json: done,
+						});
+
+						const next = function (err) {
+							if (err) {
+								done(err);
+								return;
+							}
+
+							res.status(code);
+							res.json(resBody);
+						};
+
+						test(req, res, next);
+					});
+				};
+
+				var req = {
+					method: 'POST',
+					originalUrl: '/some/path/100',
+					params: {
+						id: '100'
+					},
+					body: {},
+				};
+
+				var data = await runTest(req, 200, {
+					data: {id: '1'}
+				});
+
+				expect(req.params.id).to.equal(100);
+				expect(data).to.eql({
+					data: {id: 1}
+				});
+
+				data = await runTest(req, 200, {
+					data: {id: 'a'}
+				});
+
+				expect(data).to.eql({
+					message: 'Invalid response body',
+					errors: [
+						'response.body.data.id should be number'
+					]
+				});
+
+				data = await runTest(req, 210, {
+					data: '21x'
+				});
+
+				expect(data).to.eql({
+					data: '21x'
+				});
+
+				data = await runTest(req, 210, {
+					data: '21y'
+				});
+
+				expect(data).to.eql({
+					message: 'Invalid response body',
+					errors: [
+						'response.body.data should be equal to constant'
+					]
+				});
+
+				data = await runTest(req, 350, {
+					data: {id: 1}
+				});
+
+				expect(data).to.eql({
+					data: {id: 1}
+				});
+
+				data = await runTest(req, 350, {
+					data: {id: 0}
+				});
+
+				expect(data).to.eql({
+					message: 'Invalid response body',
+					errors: [
+						'response.body.data.id should be >= 1'
+					]
+				});
+
+				var codes = [404, 500, 505];
+
+				for (let i = 0; i < codes.length; i++) {
+					data = await runTest(req, codes[i], {
+						data: {test: -1}
+					});
+
+					expect(data).to.eql({
+						data: {test: -1}
+					});
+
+					data = await runTest(req, codes[i], {
+						data: {test: 'a'}
+					});
+
+					expect(data).to.eql({
+						message: 'Invalid response body',
+						errors: [
+							'response.body.data.test should be number'
+						]
+					});
+				}
+			})
+			.then(done)
+			.catch(done);
 	});
 });
