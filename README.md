@@ -658,12 +658,12 @@ const validator = require('./validator.js');
 app.use(validator);
 app.post('...', (req, res) => {});
 app.use(function (err, req, res, next) {
-	if (err instanceof validator.RequestValidationError) {
-		console.log(err.message);
-		console.log(err.property); // query | params | body
-		console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+    if (err instanceof validator.RequestValidationError) {
+        console.log(err.message);
+        console.log(err.property); // query | params | body
+        console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
     }
-	else if (err instanceof validator.ResponseValidationError) {
+    else if (err instanceof validator.ResponseValidationError) {
        console.log(err.message); // "Invalid response body"
        console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
     }
@@ -680,7 +680,7 @@ const validator = require('./validator.js');
 
 function sendMessage(path, data) {
     try {
-       var isResponseValid = validator({
+       var validateResponse = validator({
           url: path,
           body: data,
        });
@@ -692,9 +692,9 @@ function sendMessage(path, data) {
     }
     
     return ajax(path, data).then(function (result) {
-    	if (isResponseValid) {
+    	if (validateResponse) {
            try {
-              isResponseValid(result);
+              validateResponse(result);
            }
            catch (err) {
               console.log(err.message); // "Invalid response body"
