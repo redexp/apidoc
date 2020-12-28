@@ -12,6 +12,7 @@ app.post('/some/path');
 
 var Controller = {
 	/**
+	 * @ns controller
 	 * @url POST /controller/action
 	 * @call controller.action()
 	 */

@@ -11,6 +11,7 @@ program
 	.option('-t, --tests <path>', 'generate validator for tests')
 	.option('-e, --express <path>', 'generate express middleware validator')
 	.option('-h, --host <address>', 'host for tests requests')
+	.option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 ;
 
 program.parse(process.argv);
@@ -33,6 +34,7 @@ config.exclude = config.exclude && config.exclude.map(path => resolve(configDir,
 config.tests = program.tests || (config.tests && resolve(configDir, config.tests));
 config.express = program.express || (config.express && resolve(configDir, config.express));
 config.host = program.host || config.host;
+config.namespace = program.namespace || config.namespace;
 
 var files = getFiles(config.include);
 
@@ -44,8 +46,23 @@ if (config.exclude) {
 	});
 }
 
+if (config.namespace && !Array.isArray(config.namespace)) {
+	config.namespace = config.namespace.split(',').map(v => v.trim()).filter(v => !!v);
+}
+
 filesToEndpoints(files)
 	.then(function (endpoints) {
+		if (config.namespace) {
+			let namespaces = config.namespace.reduce(function (hash, name) {
+				hash[name] = true;
+				return hash;
+			}, {});
+
+			endpoints = endpoints.filter(function (e) {
+				return namespaces[e.namespace] === true;
+			});
+		}
+
 		var promises = [];
 
 		if (config.tests) {

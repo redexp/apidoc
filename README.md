@@ -9,6 +9,7 @@
  * [@query](#query)
  * [@body](#body)
  * [@response](#response)
+ * [@namespace](#namespace)
  * [@schema](#schema)
  * [@call](#call)
  
@@ -40,7 +41,7 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
 ## @url
 
 ```
-@url METHOD path
+@url [METHOD] path
 ```
 
 ```javascript
@@ -170,9 +171,38 @@ Validators for different codes of same request
  */
 ```
 
+## @namespace
+
+Word used to filter validators in target file. You can use shortcut `@ns`
+
+```js
+/**
+ * Namespace for this validator will be "default"
+ * 
+ * @url POST /users
+ * @body {id: number}
+ */
+
+/**
+ * @namespace test
+ * @url POST /test-success
+ * @response 2xx {success: boolean}
+ */
+
+/**
+ * @ns test
+ * @url POST /test-error
+ * @response 5xx {error: boolean}
+ */
+```
+Example of generation express middleware with only `test` validators
+```
+npx adv -c path/to/config.json -n test -e ./test-validator.js
+```
+
 ## @schema
 
-Define new schema for future usage
+Define the new schema for future usage
 
 ```
 @schema OBJECT_NAME = json-schema|OBJECT_NAME
@@ -644,6 +674,7 @@ Parameters:
   -t, --tests <path>    generate validator for tests
   -e, --express <path>  generate express middleware validator
   -h, --host <address>  host for tests requests
+  -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
   --help                display help for command
 ```
 

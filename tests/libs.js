@@ -476,6 +476,14 @@ describe('annotations', function () {
 			method: 'POST',
 			path: '/users/:id',
 		});
+
+		value = `/users/:id`;
+		item = url(value);
+
+		expect(item).to.deep.include({
+			method: undefined,
+			path: '/users/:id',
+		});
 	});
 
 	it('params, query, body, schema', function () {
