@@ -9,7 +9,7 @@ const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 program
 	.requiredOption('-c, --config <path>', 'path to config json file')
 	.option('-t, --tests <path>', 'generate validator for tests')
-	.option('-e, --express <path>', 'generate validator for express')
+	.option('-e, --express <path>', 'generate express middleware validator')
 	.option('-h, --host <address>', 'host for tests requests')
 ;
 

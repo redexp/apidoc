@@ -1,4 +1,6 @@
-const {expect} = require('chai');
+const chai = require('chai');
+chai.use(require('chai-shallow-deep-equal'));
+const {expect} = chai;
 const {getDefaultSchemas} = require('../lib/schemas');
 
 describe('libs', function () {
@@ -682,13 +684,18 @@ module.exports.test = createTestRequest({
 							res.json(resBody);
 						};
 
-						test(req, res, next);
+						try {
+							test(req, res, next);
+						}
+						catch (error) {
+							done(error);
+						}
 					});
 				};
 
 				var req = {
 					method: 'POST',
-					originalUrl: '/some/path/100',
+					url: '/some/path/100',
 					params: {
 						id: '100'
 					},
@@ -700,19 +707,42 @@ module.exports.test = createTestRequest({
 				});
 
 				expect(req.params.id).to.equal(100);
+
 				expect(data).to.eql({
 					data: {id: 1}
 				});
+
+				req.params.id = 'a';
+
+				data = await runTest(req, 200, {
+					data: {id: '1'}
+				});
+
+				expect(data).to.be.instanceof(test.RequestValidationError);
+
+				expect(data).to.shallowDeepEqual({
+					message: 'Invalid URL params',
+					property: 'params',
+					errors: [{
+						dataPath: ".id",
+						message: "should be number",
+					}]
+				});
+
+				req.params.id = '100';
 
 				data = await runTest(req, 200, {
 					data: {id: 'a'}
 				});
 
-				expect(data).to.eql({
+				expect(data).to.be.instanceof(test.ResponseValidationError);
+
+				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
-					errors: [
-						'response.body.data.id should be number'
-					]
+					errors: [{
+						dataPath: ".data.id",
+						message: "should be number",
+					}]
 				});
 
 				data = await runTest(req, 210, {
@@ -727,11 +757,12 @@ module.exports.test = createTestRequest({
 					data: '21y'
 				});
 
-				expect(data).to.eql({
+				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
-					errors: [
-						'response.body.data should be equal to constant'
-					]
+					errors: [{
+						"dataPath": ".data",
+						"message": "should be equal to constant"
+					}]
 				});
 
 				data = await runTest(req, 350, {
@@ -746,11 +777,12 @@ module.exports.test = createTestRequest({
 					data: {id: 0}
 				});
 
-				expect(data).to.eql({
+				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
-					errors: [
-						'response.body.data.id should be >= 1'
-					]
+					errors: [{
+						"dataPath": ".data.id",
+						"message": "should be >= 1"
+					}]
 				});
 
 				var codes = [404, 500, 505];
@@ -768,11 +800,12 @@ module.exports.test = createTestRequest({
 						data: {test: 'a'}
 					});
 
-					expect(data).to.eql({
+					expect(data).to.shallowDeepEqual({
 						message: 'Invalid response body',
-						errors: [
-							'response.body.data.test should be number'
-						]
+						errors: [{
+							"dataPath": ".data.test",
+							"message": "should be number"
+						}],
 					});
 				}
 			})

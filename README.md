@@ -33,6 +33,8 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
 ## Usage
 
  * [cli](#cli)
+ * [Express middleware](#express-middleware)
+ * [Universal middleware](#universal-middleware)
  * [Config](#config)
 
 ## @url
@@ -635,21 +637,74 @@ with [npx](https://www.npmjs.com/package/npx)
 
 `npx adv -c path/to/config.json`
 
-or add it to `package.json` to `"scripts":` section
-```
-"scripts": {
-    "adv": "adv"
-}
-```
-and run `npm run adv -c path/to/config.json`
-
 Parameters:
 
 ```
   -c, --config <path>   path to config json file
   -t, --tests <path>    generate validator for tests
+  -e, --express <path>  generate express middleware validator
   -h, --host <address>  host for tests requests
   --help                display help for command
+```
+
+## Express middleware
+
+Generate the middleware with `npx adv -c path/to/config.json -e path/to/your/app/validator.js`
+
+Then add it to your express app
+```js
+const validator = require('./validator.js');
+
+app.use(validator);
+app.post('...', (req, res) => {});
+app.use(function (err, req, res, next) {
+	if (err instanceof validator.RequestValidationError) {
+		console.log(err.message);
+		console.log(err.property); // query | params | body
+		console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+    }
+	else if (err instanceof validator.ResponseValidationError) {
+       console.log(err.message); // "Invalid response body"
+       console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+    }
+});
+```
+
+## Universal middleware
+
+Generate the middleware with `npx adv -c path/to/config.json -e path/to/your/app/validator.js`
+
+Then add it to your app
+```js
+const validator = require('./validator.js');
+
+function sendMessage(path, data) {
+    try {
+       var isResponseValid = validator({
+          url: path,
+          body: data,
+       });
+    }
+    catch (err) {
+       console.log(err.message);
+       console.log(err.property); // query | params | body
+       console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+    }
+    
+    return ajax(path, data).then(function (result) {
+    	if (isResponseValid) {
+           try {
+              isResponseValid(result);
+           }
+           catch (err) {
+              console.log(err.message); // "Invalid response body"
+              console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+           }
+        }
+    	
+    	return result;
+    });
+}
 ```
 
 ## Config
