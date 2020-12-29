@@ -593,6 +593,292 @@ describe('annotations', function () {
 	});
 });
 
+describe('schemas', function () {
+	const Ajv = require('ajv');
+	const ajv = new Ajv();
+
+	it('string', function () {
+		var schema = require('../lib/schemas/string');
+		var test = ajv.compile(schema);
+
+		test('');
+		expect(test.errors).to.be.null;
+
+		test('text');
+		expect(test.errors).to.be.null;
+
+		test(1);
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('number', function () {
+		var schema = require('../lib/schemas/number');
+		var test = ajv.compile(schema);
+
+		test(1);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.be.null;
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('int', function () {
+		var schema = require('../lib/schemas/int');
+		var test = ajv.compile(schema);
+
+		test(1);
+		expect(test.errors).to.be.null;
+
+		test(-1);
+		expect(test.errors).to.be.null;
+
+		test(1.5);
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('positive', function () {
+		var schema = require('../lib/schemas/positive');
+		var test = ajv.compile(schema);
+
+		test(1);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.be.null;
+
+		test(-1);
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('negative', function () {
+		var schema = require('../lib/schemas/negative');
+		var test = ajv.compile(schema);
+
+		test(-1);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.have.length(1);
+
+		test(1);
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('id', function () {
+		var schema = require('../lib/schemas/id');
+		var test = ajv.compile(schema);
+
+		test(1);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.have.length(1);
+
+		test(-1);
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('boolean', function () {
+		var schema = require('../lib/schemas/boolean');
+		var test = ajv.compile(schema);
+
+		test(true);
+		expect(test.errors).to.be.null;
+		test(false);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.have.length(1);
+
+		test(null);
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('date', function () {
+		var schema = require('../lib/schemas/date');
+		var test = ajv.compile(schema);
+
+		test('2000-01-01');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01 10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('2000-01-01T10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('time', function () {
+		var schema = require('../lib/schemas/time');
+		var test = ajv.compile(schema);
+
+		test('10:10:10');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01 10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('2000-01-01T10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('date-time', function () {
+		var schema = require('../lib/schemas/date-time');
+		var test = ajv.compile(schema);
+
+		test('2000-01-01 10:10:10');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01T10:10:10');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01');
+		expect(test.errors).to.have.length(1);
+
+		test('10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('date-time-tz', function () {
+		var schema = require('../lib/schemas/date-time-tz');
+		var test = ajv.compile(schema);
+
+		test('2000-01-01 10:10:10+02');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01T10:10:10+02');
+		expect(test.errors).to.be.null;
+
+		test('2000-01-01T10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('10:10:10');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('email', function () {
+		var schema = require('../lib/schemas/email');
+		var test = ajv.compile(schema);
+
+		test('test@mail.com');
+		expect(test.errors).to.be.null;
+
+		test('testmail.com');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('hostname', function () {
+		var schema = require('../lib/schemas/hostname');
+		var test = ajv.compile(schema);
+
+		test('domain.com');
+		expect(test.errors).to.be.null;
+
+		test('http://domain.com');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('filename', function () {
+		var schema = require('../lib/schemas/filename');
+		var test = ajv.compile(schema);
+
+		test('file-name.ext1');
+		expect(test.errors).to.be.null;
+
+		test('dir/file.ext');
+		expect(test.errors).to.have.length(1);
+
+		test('../file.ext');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('ipv4', function () {
+		var schema = require('../lib/schemas/ipv4');
+		var test = ajv.compile(schema);
+
+		test('1.1.1.1');
+		expect(test.errors).to.be.null;
+
+		test('255.255.255.255');
+		expect(test.errors).to.be.null;
+
+		test('1');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('ipv6', function () {
+		var schema = require('../lib/schemas/ipv6');
+		var test = ajv.compile(schema);
+
+		test('2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d');
+		expect(test.errors).to.be.null;
+
+		test('255.255.255.255');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('regex', function () {
+		var schema = require('../lib/schemas/regex');
+		var test = ajv.compile(schema);
+
+		test('^\\d$');
+		expect(test.errors).to.be.null;
+
+		test('(');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.be.null;
+	});
+
+	it('uuid', function () {
+		var schema = require('../lib/schemas/uuid');
+		var test = ajv.compile(schema);
+
+		test('00000000-1111-2222-3333-000000000000');
+		expect(test.errors).to.be.null;
+
+		test('00000000-1111-2222-3333');
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+	});
+});
+
 describe('generate', function () {
 	it('test', function () {
 		const endpointToTest = require('../lib/endpointToTest');
