@@ -83,6 +83,7 @@ describe('parseSchema', function () {
 
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["id", "name", "date", "listInt", "listStr", "listObj", "enumInt", "enumStr", "any_of", "all_of"],
 			"properties": {
 				id: {
@@ -93,7 +94,7 @@ describe('parseSchema', function () {
 				},
 				date: {
 					"type": "string",
-					"format": "date-time"
+					pattern: "^\\d{4}-[01]\\d-[0-3]\\d[tT\\s](?:[0-2]\\d:[0-5]\\d:[0-5]\\d|23:59:60)(?:\\.\\d+)?(?:z|[+-]\\d{2}(?::?\\d{2})?)$",
 				},
 				optional: {
 					"type": "string"
@@ -114,6 +115,7 @@ describe('parseSchema', function () {
 					"type": "array",
 					"items": {
 						"type": "object",
+						"additionalProperties": false,
 						"required": ["type"],
 						"properties": {
 							type: {
@@ -159,6 +161,7 @@ describe('parseSchema', function () {
 		expect(parseSchema.cache).to.property('Schema');
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test1"],
 			"properties": {
 				test1: {
@@ -172,6 +175,7 @@ describe('parseSchema', function () {
 		expect(parseSchema.cache).to.property('Schema.field');
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test2"],
 			"properties": {
 				test2: {
@@ -184,6 +188,7 @@ describe('parseSchema', function () {
 		expect(parseSchema.cache).to.property('Schema.field1.field2');
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test3"],
 			"properties": {
 				test3: {
@@ -203,6 +208,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema`);
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test1"],
 			"properties": {
 				test1: {
@@ -214,6 +220,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field`);
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test2"],
 			"properties": {
 				test2: {
@@ -225,6 +232,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field1.field2`);
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test3"],
 			"properties": {
 				test3: {
@@ -241,6 +249,7 @@ describe('parseSchema', function () {
 
 		var test1 = {
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test1"],
 			"properties": {
 				test1: {
@@ -250,6 +259,7 @@ describe('parseSchema', function () {
 		};
 		var test2 = {
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test2"],
 			"properties": {
 				test2: {
@@ -259,6 +269,7 @@ describe('parseSchema', function () {
 		};
 		var test3 = {
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["test3"],
 			"properties": {
 				test3: {
@@ -325,6 +336,7 @@ describe('parseSchema', function () {
 		expect(res).to.eql(parseSchema('AllOf')).and.to.eql({
 			"allOf": [{
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test1"],
 				"properties": {
 					test1: {
@@ -333,6 +345,7 @@ describe('parseSchema', function () {
 				}
 			}, {
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test2"],
 				"properties": {
 					test2: {
@@ -341,6 +354,7 @@ describe('parseSchema', function () {
 				}
 			}, {
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test3"],
 				"properties": {
 					test3: {
@@ -354,6 +368,7 @@ describe('parseSchema', function () {
 		expect(res).to.eql(parseSchema('AnyOf')).and.to.eql({
 			"anyOf": [{
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test1"],
 				"properties": {
 					test1: {
@@ -362,6 +377,7 @@ describe('parseSchema', function () {
 				}
 			}, {
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test2"],
 				"properties": {
 					test2: {
@@ -370,6 +386,7 @@ describe('parseSchema', function () {
 				}
 			}, {
 				"type": "object",
+				"additionalProperties": false,
 				"required": ["test3"],
 				"properties": {
 					test3: {
@@ -403,6 +420,7 @@ describe('parseSchema', function () {
 
 		expect(res).to.eql({
 			"type": "object",
+			"additionalProperties": false,
 			"required": ["id", "field", "test1", "test3", "wasOpt", "date"],
 			"properties": {
 				id: {
@@ -449,6 +467,7 @@ describe('parseSchema', function () {
 
 		expect(res).to.eql({
 			type: 'object',
+			"additionalProperties": false,
 			required: ['id'],
 			properties: {
 				id: {
@@ -481,7 +500,14 @@ describe('annotations', function () {
 		item = url(value);
 
 		expect(item).to.deep.include({
-			method: undefined,
+			method: 'GET',
+			path: '/users/:id',
+		});
+
+		item = url(value, {defaultMethod: 'post'});
+
+		expect(item).to.deep.include({
+			method: 'POST',
 			path: '/users/:id',
 		});
 	});
@@ -594,8 +620,9 @@ describe('annotations', function () {
 });
 
 describe('schemas', function () {
-	const Ajv = require('ajv');
+	const Ajv = require('ajv').default;
 	const ajv = new Ajv();
+	require('ajv-formats')(ajv);
 
 	it('string', function () {
 		var schema = require('../lib/schemas/string');
@@ -1018,7 +1045,7 @@ module.exports.test = createTestRequest({
 					message: 'Invalid URL params',
 					property: 'params',
 					errors: [{
-						dataPath: ".id",
+						dataPath: "/id",
 						message: "should be number",
 					}]
 				});
@@ -1034,7 +1061,7 @@ module.exports.test = createTestRequest({
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						dataPath: ".data.id",
+						dataPath: "/data/id",
 						message: "should be number",
 					}]
 				});
@@ -1054,7 +1081,7 @@ module.exports.test = createTestRequest({
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						"dataPath": ".data",
+						"dataPath": "/data",
 						"message": "should be equal to constant"
 					}]
 				});
@@ -1074,7 +1101,7 @@ module.exports.test = createTestRequest({
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						"dataPath": ".data.id",
+						"dataPath": "/data/id",
 						"message": "should be >= 1"
 					}]
 				});
@@ -1097,7 +1124,7 @@ module.exports.test = createTestRequest({
 					expect(data).to.shallowDeepEqual({
 						message: 'Invalid response body',
 						errors: [{
-							"dataPath": ".data.test",
+							"dataPath": "/data/test",
 							"message": "should be number"
 						}],
 					});

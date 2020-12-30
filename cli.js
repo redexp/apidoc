@@ -14,6 +14,8 @@ program
 	.option('-e, --express <path>', 'generate express middleware validator')
 	.option('-h, --host <address>', 'host for tests requests')
 	.option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
+	.option('-M, --default-method <method>', 'default @url METHOD')
+	.option('-C, --default-code <code>', 'default @response CODE')
 ;
 
 program.parse(process.argv);
@@ -37,6 +39,8 @@ config.tests = program.tests || (config.tests && resolve(configDir, config.tests
 config.express = program.express || (config.express && resolve(configDir, config.express));
 config.host = program.host || config.host;
 config.namespace = program.namespace || config.namespace;
+config.defaultMethod = program.defaultMethod || config.defaultMethod;
+config.defaultCode = program.defaultCode || config.defaultCode;
 
 var files = getFiles(config.include);
 
@@ -52,7 +56,7 @@ if (config.namespace && !Array.isArray(config.namespace)) {
 	config.namespace = config.namespace.split(',').map(v => v.trim()).filter(v => !!v);
 }
 
-filesToEndpoints(files)
+filesToEndpoints(files, config)
 	.then(function (endpoints) {
 		if (config.namespace) {
 			let namespaces = config.namespace.reduce(function (hash, name) {

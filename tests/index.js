@@ -13,15 +13,11 @@ describe('config file', function () {
 	it(`should generate express middleware`, function (done) {
 		var path = cwd('output', 'cliExpress.js');
 
-		if (fs.existsSync(path)) {
-			fs.unlinkSync(path);
-		}
+		remove(path);
 
 		exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path}`)
 			.then(function () {
-				if (!fs.existsSync(path)) {
-					throw new Error('File not exists: ' + path);
-				}
+				isExist(path);
 
 				var validator = require(path);
 				expect(validator.endpoints).to.have.lengthOf(3);
@@ -33,15 +29,11 @@ describe('config file', function () {
 		(async function () {
 			var path = cwd('output', 'namespace1.js');
 
-			if (fs.existsSync(path)) {
-				fs.unlinkSync(path);
-			}
+			remove(path);
 
 			await exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path} -n controller`);
 
-			if (!fs.existsSync(path)) {
-				throw new Error('File not exists: ' + path);
-			}
+			isExist(path);
 
 			var validator = require(path);
 
@@ -49,17 +41,35 @@ describe('config file', function () {
 				{
 					namespace: 'controller',
 					url: {
-						method: 'POST',
+						method: 'GET',
 						path: '/controller/action'
 					},
+					"response": [
+						{
+							"code": {
+								"const": 200,
+								"type": "number"
+							},
+							"schema": {
+								"additionalProperties": false,
+								"properties": {
+									"success": {
+										"type": "boolean"
+									}
+								},
+								"required": [
+									"success"
+								],
+								"type": "object"
+							}
+						}
+					]
 				}
 			]);
 
 			path = cwd('output', 'namespace2.js');
 
-			if (fs.existsSync(path)) {
-				fs.unlinkSync(path);
-			}
+			remove(path);
 
 			await exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path} -n default,controller`);
 
@@ -77,7 +87,7 @@ describe('config file', function () {
 				{
 					namespace: 'controller',
 					url: {
-						method: 'POST',
+						method: 'GET',
 						path: '/controller/action'
 					},
 				},
@@ -89,6 +99,37 @@ describe('config file', function () {
 					},
 				}
 			]);
+		})().then(done, done);
+	});
+
+	it('should generate with defaults', function (done) {
+		(async function () {
+			var path = cwd('output', 'defaultMethod.js');
+
+			remove(path);
+
+			await exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path} -n controller -M PUT`);
+
+			isExist(path);
+
+			var validator = require(path);
+
+			expect(validator.endpoints[0].url.method).to.eql('PUT');
+
+			path = cwd('output', 'defaultCode.js');
+
+			remove(path);
+
+			await exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path} -n controller -C 5xx`);
+
+			isExist(path);
+
+			validator = require(path);
+
+			expect(validator.endpoints[0].response[0].code).to.eql({
+				type: 'string',
+				pattern: '^5\\d\\d$'
+			});
 		})().then(done, done);
 	});
 });
@@ -110,4 +151,16 @@ function cwd(...args) {
 	args.unshift(__dirname);
 
 	return resolve.apply(null, args);
+}
+
+function isExist(path) {
+	if (!fs.existsSync(path)) {
+		throw new Error('File not exists: ' + path);
+	}
+}
+
+function remove(file) {
+	if (fs.existsSync(file)) {
+		fs.unlinkSync(file);
+	}
 }

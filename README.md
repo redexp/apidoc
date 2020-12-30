@@ -480,7 +480,7 @@ Instead of short `string` validator you can use one of following string patterns
  * `uri-template` URI template according to RFC6570
  * `email` email address.
  * `hostname` host name according to RFC1034.
- * `filename` name (words with dashes) with or without extension
+ * `filename` name (words with dashes) with extension
  * `ipv4` IP address v4.
  * `ipv6` IP address v6.
  * `regex` tests whether a string is a valid regular expression by passing it to RegExp constructor.
@@ -671,10 +671,10 @@ Parameters:
 
 ```
   -c, --config <path>   path to config json file
-  -t, --tests <path>    generate validator for tests
   -e, --express <path>  generate express middleware validator
-  -h, --host <address>  host for tests requests
   -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
+  -M, --default-method <method>  default @url METHOD
+  -C, --default-code <code>  default @response CODE
   --help                display help for command
 ```
 
@@ -682,9 +682,11 @@ Parameters:
 
 Generate the middleware with `npx adv -c path/to/config.json -e path/to/your/app/validator.js`
 
-Then add it to your express app
+Install in to your project packages [ajv](https://www.npmjs.com/package/ajv), [ajv-formats](https://www.npmjs.com/package/ajv-formats) and [path-to-regexp](https://www.npmjs.com/package/path-to-regexp). Middleware depends on them.
+
+Then add middleware to your express app
 ```js
-const validator = require('./validator.js');
+const validator = require('./path/to/your/app/validator.js');
 
 app.use(validator);
 app.post('...', (req, res) => {});
@@ -699,6 +701,19 @@ app.use(function (err, req, res, next) {
        console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
     }
 });
+```
+
+By default `validator` will create `ajv` instance like this
+```js
+const Ajv = require('ajv').default;
+const ajv = new Ajv({coerceTypes: true});
+require('ajv-formats')(ajv);
+validator.ajv = ajv;
+```
+But you can overwrite it with your `ajv` instance at any time. See [Ajv options](https://github.com/ajv-validator/ajv/blob/master/docs/api.md#options)
+```js
+const validator = require('./validator.js');
+validator.ajv = new Ajv(options);
 ```
 
 ## Universal middleware
@@ -742,15 +757,12 @@ function sendMessage(path, data) {
 
  * `include` array of paths to files relative to config path, [glob](https://www.npmjs.com/package/glob) pattern used
  * `exclude` array of paths to files to be excluded
- * `import` array of external api doc configs
-   * `prefix` OBJECT_NAME which will be added before each OBJECT_NAME of imported schemas. 
-     If you name it with dot in the end like `Ext.` then imported schemas will have names like `Ext.User`.
-     If you name it without dot like `Ext` then name will be `ExtUser`.
-   * `path` path to external config file
- * `host` base url address for tests requests
- * `tests` path for output file of tests requests
  * `defaultMethod` overwrites default [METHOD](#method). Default is `GET`
- * `defaultCode` overwrites default [CODE](#code). Default is `2xx`
+ * `defaultCode` overwrites default [CODE](#code). Default is `200`
+ * `express` same as `--express <path>`
+ * `namespace` same as `--namespace <path>`
+
+All paths are relative to config file location.
 
 Example
 ```json
@@ -761,14 +773,6 @@ Example
   "exclude": [
     "src/tests"
   ],
-  "import": [
-    {
-      "prefix": "Ext.",
-      "path": "../external-project/apidoc.json"
-    }
-  ],
-  "host": "https://api.openweathermap.org",
-  "tests": "output/tests.js",
   "defaultMethod": "POST",
   "defaultCode": "2xx || 301"
 }

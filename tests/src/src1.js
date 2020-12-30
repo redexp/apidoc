@@ -13,7 +13,8 @@ app.post('/some/path');
 var Controller = {
 	/**
 	 * @ns controller
-	 * @url POST /controller/action
+	 * @url /controller/action
+	 * @response {success: boolean}
 	 * @call controller.action()
 	 */
 	action: function () {
