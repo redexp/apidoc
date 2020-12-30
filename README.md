@@ -700,6 +700,19 @@ app.use(function (err, req, res, next) {
        console.log(err.message); // "Invalid response body"
        console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
     }
+    else {
+    	next(err);
+    }
+    
+    // or use base class
+   
+    if (err instanceof validator.ValidationError) {
+       console.log(err.message);
+       console.log(err.errors);
+    }
+    else {
+       next(err);
+    }
 });
 ```
 
