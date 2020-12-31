@@ -289,6 +289,8 @@ Default ajv schema
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['id', /* "name", */ 'enabled', 'list', 'user', 'enumOfStrings'],
     properties: {
         id: {
             type: "number",
@@ -323,7 +325,7 @@ Simplified description of schema
 ```javascript
 schema = {
     id: number,
-    name: string,
+    [name]: string,
     enabled: boolean,
     listOfObjects: [{
         id: number,
@@ -367,6 +369,8 @@ Will be converted to
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['days', 'list', 'user', 'parent'],
     properties: {
         days: {
             type: "array",
@@ -420,6 +424,7 @@ schema = {
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
     required: ["id"],
     properties: {
         id: {type: "number"},
@@ -448,6 +453,8 @@ Will be converted to
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['id', 'price', 'list'],
     properties: {
         id: {
             type: "number",
@@ -498,6 +505,8 @@ Will be converted to
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['id', 'email', 'created_at', 'days'],
     properties: {
         id: {
             type: "string",
@@ -557,6 +566,8 @@ will be
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['data'],
     properties: {
         data: {
             anyOf: [
@@ -581,6 +592,8 @@ will be
 ```javascript
 schema = {
     type: "object",
+    additionalProperties: false,
+    required: ['data'],
     properties: {
         data: {
             allOf: [
@@ -609,28 +622,58 @@ UserExtra = {
 }
 
 schema = {
-    user: {
-        ...User,
-        ...UserExtra,
-        data: undefined, // remove field
-        created_at: date-time, // overwrite field
-    },
+   ...User,
+   ...UserExtra,
+   age: number, // add field
+   data: undefined, // remove field
+   created_at: date-time, // overwrite field
 }
 ```
 will be
 ```javascript
 schema = {
-    type: "object",
-    properties: {
-        user: {
-            type: "object",
-            properties: {
-                id: {type: "number"},
-                name: {type: "string"},
-                created_at: {type: "string", format: "date-time"},
-            }
-        },
-    },
+   type: "object",
+   additionalProperties: false,
+   required: ['id', 'name', 'created_at', 'age'],
+   properties: {
+      id: {type: "number"},
+      name: {type: "string"},
+      created_at: {type: "string", format: "date-time"},
+      age: {type: "number"},
+   }
+}
+```
+
+Also, you can overwrite validator options
+```js
+schema = {
+   ...User,
+   type: "object",
+   additionalProperties: true,
+}
+```
+Important to add `type: "object"` it says to compiler that this object is pure ajv validator, not simplified version.
+```javascript
+schema = {
+   type: "object",
+   additionalProperties: true,
+   properties: {
+      id: {type: "number"},
+      data: {type: "string"},
+   }
+}
+```
+You extend even non object validators
+```js
+phone = {
+	type: "string",
+    pattern: "^\\d+$"
+}
+
+schema = {
+	...phone,
+    type: "string",
+    maxLength: 20,
 }
 ```
 

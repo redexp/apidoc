@@ -482,6 +482,93 @@ describe('parseSchema', function () {
 			type: 'number'
 		});
 	});
+
+	it('extend {...{},}', function () {
+		var schema = parseSchema(`
+			{
+				...{
+					name: string,
+				},
+				type: "object",
+				additionalProperties: true,
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'object',
+			additionalProperties: true,
+			required: ['name'],
+			properties: {
+				name: {
+					type: 'string'
+				}
+			}
+		});
+
+		schema = parseSchema(`
+			{
+				type: "object",
+				additionalProperties: true,
+				extra: "test",
+				...{
+					name: string,
+				},
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			extra: "test",
+			required: ['name'],
+			properties: {
+				name: {
+					type: 'string'
+				}
+			}
+		});
+
+		schema = parseSchema(`
+			{
+				type: "object",
+				...{
+					name: string,
+				},
+				additionalProperties: true,
+				...{
+					id: number,
+					name: number,
+				},
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			required: ['name', 'id'],
+			properties: {
+				id: {
+					type: 'number'
+				},
+				name: {
+					type: 'number'
+				}
+			}
+		});
+
+		schema = parseSchema(`
+			{
+				...string,
+				type: "string",
+				extra: 'test',
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'string',
+			extra: 'test',
+		});
+	});
 });
 
 describe('annotations', function () {
