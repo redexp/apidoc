@@ -16,8 +16,9 @@ var Controller = {
 	 * @url /controller/action
 	 * @response {success: boolean}
 	 * @call controller.action()
+	 * @returns string
 	 */
 	action: function () {
-
+		return '';
 	}
 };

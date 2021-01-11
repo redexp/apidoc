@@ -50,6 +50,40 @@ describe('libs', function () {
 			},
 		]);
 	});
+
+	it('parseEndpoint', function () {
+		const parseEndpoint = require('../lib/parseEndpoint');
+
+		var res = parseEndpoint([
+			{
+				name: 'url',
+				value: '/test'
+			},
+			{
+				name: 'param',
+				value: 'name'
+			}
+		]);
+
+		expect(res).to.eql({
+			namespace: 'default',
+			url: {
+				method: 'GET',
+				path: '/test',
+			}
+		});
+
+		expect(() => parseEndpoint([
+			{
+				name: 'url',
+				value: '/test'
+			},
+			{
+				name: 'test',
+				value: 'name'
+			}
+		])).to.throw('Unknown annotation "test"');
+	});
 });
 
 describe('parseSchema', function () {
