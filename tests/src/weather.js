@@ -6,15 +6,16 @@
  * }
  * @response {
  *     coord: {
- *         lon: number,
+ *         lon: number, // some comment 1!@#$%^&*()
  *         lat: number,
  *     },
- *     weather: [{
+ *     weather: [ // comment 2.1
+ *     { // comment 2.2
  *         id: number,
  *         main: string,
  *         description: string,
  *         icon: string,
- *     }],
+ *     }], // comment 3
  * }
  * @call weather.get(q, appid)
  */

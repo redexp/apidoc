@@ -14,7 +14,7 @@ var Controller = {
 	/**
 	 * @ns controller
 	 * @url /controller/action
-	 * @response {success: boolean}
+	 * @response {success: boolean} // some comment !@#$%^&*()
 	 * @call controller.action()
 	 * @returns string
 	 */
