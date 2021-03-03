@@ -5,14 +5,14 @@ const fs = require('fs');
 const {resolve, dirname} = require('path');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
-const generateTests = require('./lib/generate/tests');
+const generateApiClient = require('./lib/generate/apiClient');
 const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 
 program
 	.requiredOption('-c, --config <path>', 'path to config json file')
-	.option('-t, --tests <path>', 'generate validator for tests')
+	.option('-a, --api-client <path>', 'generate api client')
+	.option('-b, --base-url <url>', 'default Api.baseUrl')
 	.option('-e, --express <path>', 'generate express middleware validator')
-	.option('-h, --host <address>', 'host for tests requests')
 	.option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 	.option('-M, --default-method <method>', 'default @url METHOD')
 	.option('-C, --default-code <code>', 'default @response CODE')
@@ -35,9 +35,9 @@ if (!config.include) {
 
 config.include = config.include.map(path => resolve(configDir, path));
 config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
-config.tests = program.tests || (config.tests && resolve(configDir, config.tests));
+config.apiClient = program.apiClient || (config.apiClient && resolve(configDir, config.apiClient));
+config.baseUrl = program.baseUrl || config.baseUrl;
 config.express = program.express || (config.express && resolve(configDir, config.express));
-config.host = program.host || config.host;
 config.namespace = program.namespace || config.namespace;
 config.defaultMethod = program.defaultMethod || config.defaultMethod;
 config.defaultCode = program.defaultCode || config.defaultCode;
@@ -71,10 +71,10 @@ filesToEndpoints(files, config)
 
 		var promises = [];
 
-		if (config.tests) {
+		if (config.apiClient) {
 			promises.push(
-				generateTests(config.tests, {
-					host: config.host,
+				generateApiClient(config.apiClient, {
+					baseUrl: config.baseUrl,
 					endpoints: endpoints.filter(e => !!e.call),
 				})
 			);

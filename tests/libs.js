@@ -65,7 +65,7 @@ describe('libs', function () {
 			}
 		]);
 
-		expect(res).to.eql({
+		expect(res).to.shallowDeepEqual({
 			namespace: 'default',
 			url: {
 				method: 'GET',
@@ -1028,64 +1028,6 @@ describe('schemas', function () {
 });
 
 describe('generate', function () {
-	it('test', function () {
-		const endpointToTest = require('../lib/endpointToTest');
-		const call = require('../lib/annotations/call');
-
-		var res = endpointToTest({
-			call: call('app.method(test, name)')
-		});
-
-		expect(res).to.eql(`
-/**
- * @function
- * @param test
- * @param name
- * @returns {Promise}
- * @example app.method(test, name)
- */
-module.exports.app.method = createTestRequest({
-  "call": {
-    "code": "app.method(test, name)",
-    "method": "app.method",
-    "parts": [
-      "app",
-      "method"
-    ],
-    "params": [
-      "test",
-      "name"
-    ]
-  }
-});
-`);
-
-		res = endpointToTest({
-			call: call('test()'),
-			body: {},
-		});
-
-		expect(res).to.eql(`
-/**
- * @function
- * @param body
- * @returns {Promise}
- * @example test()
- */
-module.exports.test = createTestRequest({
-  "call": {
-    "code": "test()",
-    "method": "test",
-    "parts": [
-      "test"
-    ],
-    "params": []
-  },
-  "body": {}
-});
-`);
-	});
-
 	it('express', function (done) {
 		this.timeout(5000);
 
@@ -1138,6 +1080,9 @@ module.exports.test = createTestRequest({
 				var req = {
 					method: 'POST',
 					url: '/some/path/100',
+					query: {
+						r: 1
+					},
 					params: {
 						id: '100'
 					},

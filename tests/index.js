@@ -20,7 +20,7 @@ describe('config file', function () {
 				isExist(path);
 
 				var validator = require(path);
-				expect(validator.endpoints).to.have.lengthOf(3);
+				expect(validator.endpoints).to.have.lengthOf(4);
 			})
 			.then(done, done);
 	});
@@ -37,7 +37,7 @@ describe('config file', function () {
 
 			var validator = require(path);
 
-			expect(validator.endpoints).to.eql([
+			expect(validator.endpoints).to.shallowDeepEqual([
 				{
 					namespace: 'controller',
 					url: {
@@ -75,7 +75,7 @@ describe('config file', function () {
 
 			validator = require(path);
 
-			expect(validator.endpoints).to.have.lengthOf(3);
+			expect(validator.endpoints).to.have.lengthOf(4);
 			expect(validator.endpoints).to.shallowDeepEqual([
 				{
 					namespace: 'default',
@@ -94,8 +94,15 @@ describe('config file', function () {
 				{
 					namespace: 'default',
 					url: {
+						method: "GET",
+						path: "/users"
+					}
+				},
+				{
+					namespace: 'default',
+					url: {
 						method: 'GET',
-						path: '/data/2.5/weather'
+						path: '/data/:version/weather'
 					},
 				}
 			]);
@@ -131,6 +138,49 @@ describe('config file', function () {
 				pattern: '^5\\d\\d$'
 			});
 		})().then(done, done);
+	});
+
+	it('should generate api client', function (done) {
+		var path = cwd('output', 'cliApi.js');
+
+		remove(path);
+
+		exec(`node cli.js -c ${cwd('apidoc.json')} -a ${path}`)
+			.then(async function () {
+				isExist(path);
+
+				var Api = require(path);
+				expect(Api.baseUrl).to.eql('https://samples.openweathermap.org');
+				expect(Api.request).to.be.a('function');
+
+				var client = new Api();
+
+				expect(client).to.have.nested.property('weather.get').that.is.a('function');
+				expect(client).to.have.nested.property('app.test1').that.is.a('function');
+
+				var n = 0;
+
+				Api.request = function ({url, query, body}) {
+					n++;
+					expect(url).to.eql('/some/path/100');
+					expect(query).to.eql(n === 1 ? {r: 200} : {r: 200, q: 'test'});
+					expect(body).to.eql({any: 'value'});
+
+					return {
+						statusCode: 210,
+						body: {data: '21x'}
+					};
+				};
+
+				var result = await client.app.test1(100, {r: 200}, {any: 'value'});
+				expect(result).to.eql({data: '21x'});
+				expect(n).to.eql(1);
+
+				result = await client.app.test1({id: 100}, {r: 200, q: 'test'}, {any: 'value'});
+				expect(result).to.eql({data: '21x'});
+				expect(n).to.eql(2);
+			})
+			.then(done, done);
 	});
 });
 

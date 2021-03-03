@@ -1,7 +1,7 @@
 /**
- * @url GET /data/2.5/weather
+ * @url GET /data/:version/weather
  * @query {
- *     q: string,
+ *     [q]: string,
  *     appid: string,
  * }
  * @response {
@@ -17,7 +17,7 @@
  *         icon: string,
  *     }], // comment 3
  * }
- * @call weather.get(q, appid)
+ * @call weather.get()
  */
 
 var response = {

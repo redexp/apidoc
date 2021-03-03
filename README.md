@@ -34,6 +34,7 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
 ## Usage
 
  * [cli](#cli)
+ * [API client](#api-client)
  * [Express middleware](#express-middleware)
  * [Universal middleware](#universal-middleware)
  * [Config](#config)
@@ -713,7 +714,9 @@ with [npx](https://www.npmjs.com/package/npx)
 Parameters:
 
 ```
-  -c, --config <path>   path to config json file
+  -c, --config <path> path to config json file
+  -a, --api-client <path> generate api client
+  -b, --base-url <url> default Api.baseUrl
   -e, --express <path>  generate express middleware validator
   -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
   -M, --default-method <method>  default @url METHOD
@@ -721,27 +724,53 @@ Parameters:
   --help                display help for command
 ```
 
+## API client
+
+Install in to your project packages [ajv](https://www.npmjs.com/package/ajv), [ajv-formats](https://www.npmjs.com/package/ajv-formats) (optional if you not using [String patterns](#string-patterns)), [request](https://www.npmjs.com/package/request) (if you don't like `request` then you will need to implement `Api.request`) and [path-to-regexp](https://www.npmjs.com/package/path-to-regexp). Client will depend on them.
+
+Generate the API client with `npx adv -c path/to/config.json -a path/to/your/app/api-client.js`
+
+Generated `api-client.js` will export class `Api`.
+```js
+const Api = require('./path/to/your/app/api-client.js');
+const client = new Api();
+
+console.log(Api.baseUrl); // value from config.baseUrl or --base-url cli option
+
+// optionaly
+Api.getAjv = () => createYourAjvInstance();
+Api.request = ({method, url, params, query, body, endpoint, context}) => makeRequestReturnPromise(Api.baseUrl + url);
+// --
+
+client.someMethod(param)  // see @call annotation
+  .then(responseBody => console.log(responseBody))
+  .catch(err => {
+     // @see Validation errors handling
+  });
+```
+
 ## Express middleware
 
-Generate the middleware with `npx adv -c path/to/config.json -e path/to/your/app/validator.js`
+Install in to your project packages [ajv](https://www.npmjs.com/package/ajv), [ajv-formats](https://www.npmjs.com/package/ajv-formats) (optional if you not using [String patterns](#string-patterns)) and [path-to-regexp](https://www.npmjs.com/package/path-to-regexp). Middleware depends on them.
 
-Install in to your project packages [ajv](https://www.npmjs.com/package/ajv), [ajv-formats](https://www.npmjs.com/package/ajv-formats) and [path-to-regexp](https://www.npmjs.com/package/path-to-regexp). Middleware depends on them.
+Generate the middleware with `npx adv -c path/to/config.json -e path/to/your/app/validator.js`
 
 Then add middleware to your express app
 ```js
 const validator = require('./path/to/your/app/validator.js');
 
+// optionaly
+validator.getAjv = () => createYourAjvInstance();
+// --
+
 app.use(validator);
 app.post('...', (req, res) => {});
 app.use(function (err, req, res, next) {
     if (err instanceof validator.RequestValidationError) {
-        console.log(err.message);
-        console.log(err.property); // query | params | body
-        console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+        // @see Validation errors handling
     }
     else if (err instanceof validator.ResponseValidationError) {
-       console.log(err.message); // "Invalid response body"
-       console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+       // @see Validation errors handling
     }
     else {
     	next(err);
@@ -750,26 +779,12 @@ app.use(function (err, req, res, next) {
     // or use base class
    
     if (err instanceof validator.ValidationError) {
-       console.log(err.message);
-       console.log(err.errors);
+       // @see Validation errors handling
     }
     else {
        next(err);
     }
 });
-```
-
-By default `validator` will create `ajv` instance like this
-```js
-const Ajv = require('ajv').default;
-const ajv = new Ajv({coerceTypes: true});
-require('ajv-formats')(ajv);
-validator.ajv = ajv;
-```
-But you can overwrite it with your `ajv` instance at any time. See [Ajv options](https://github.com/ajv-validator/ajv/blob/master/docs/api.md#options)
-```js
-const validator = require('./validator.js');
-validator.ajv = new Ajv(options);
 ```
 
 ## Universal middleware
@@ -788,9 +803,7 @@ function sendMessage(path, data) {
        });
     }
     catch (err) {
-       console.log(err.message);
-       console.log(err.property); // query | params | body
-       console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+       // @see RequestValidationError
     }
     
     return ajax(path, data).then(function (result) {
@@ -799,13 +812,43 @@ function sendMessage(path, data) {
               validateResponse(result);
            }
            catch (err) {
-              console.log(err.message); // "Invalid response body"
-              console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+              // @see ResponseValidationError
            }
         }
     	
     	return result;
     });
+}
+```
+
+## Validation errors handling
+
+Both Api class and middleware exports three classes:
+
+ * `ValidationError` - base class, extends `Error`
+ * `RequestValidationError` - class of request validation error, extends `ValidationError` 
+ * `ResponseValidationError` - class of response validation error, extends `ValidationError` 
+
+```js
+let err; // error from api client or middleware validator
+let context; // Api class or middleware
+
+if (err instanceof context.RequestValidationError) {
+   console.log(err.message);
+   console.log(err.property); // query | params | body
+   console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+}
+else if (err instanceof context.ResponseValidationError) {
+   console.log(err.message); // "Invalid response body"
+   console.log(err.errors); // @see https://github.com/ajv-validator/ajv/blob/master/docs/api.md#validation-errors
+}
+
+// or use base class
+
+if (err instanceof context.ValidationError) {
+   console.log(err.message);
+   console.log(err.property);
+   console.log(err.errors);
 }
 ```
 

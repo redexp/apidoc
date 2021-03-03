@@ -1,12 +1,13 @@
 /**
  * @url POST /some/path/:id
  * @params {id: number}
+ * @query {r: number, [q]: string}
  * @body {type: 'object'}
  * @response 200 {data: Test}
  * @response 21x {data: '21x'}
  * @response 300 - 400 {data: {id: id}}
  * @response 4xx || 500 || 501 - 600 {data: {test: negative}}
- * @call app.test1(id)
+ * @call app.test1()
  */
 app.post('/some/path');
 
@@ -22,3 +23,9 @@ var Controller = {
 		return '';
 	}
 };
+
+/**
+ * @url /users
+ * @response 2xx [{id: id, name: string}]
+ * @call getUsers()
+ */
