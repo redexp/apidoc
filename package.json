@@ -1,6 +1,6 @@
 {
   "name": "api-doc-validator",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "api doc and validator",
   "main": "index.js",
   "scripts": {

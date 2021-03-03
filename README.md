@@ -731,20 +731,53 @@ Install in to your project packages [ajv](https://www.npmjs.com/package/ajv), [a
 
 Generate the API client with `npx adv -c path/to/config.json -a path/to/your/app/api-client.js`
 
+Example
+
+```js
+/**
+ * @url POST /users
+ * @body User = {id: number, name: string}
+ * @response 200 User
+ * @call addUser()
+ */
+
+/**
+ * @url GET /users/:id
+ * @params {id: number}
+ * @response 200 User
+ * @call users.get()
+ */
+```
 Generated `api-client.js` will export class `Api`.
 ```js
 const Api = require('./path/to/your/app/api-client.js');
-const client = new Api();
+const client = new Api(/* "https://new.base.url" optionaly, default is Api.baseUrl */);
 
 console.log(Api.baseUrl); // value from config.baseUrl or --base-url cli option
+console.log(Api.endpoints); // parsed endpoints from comments
 
 // optionaly
 Api.getAjv = () => createYourAjvInstance();
-Api.request = ({method, url, params, query, body, endpoint, context}) => makeRequestReturnPromise(Api.baseUrl + url);
+Api.request = function ({
+   method, 
+   url, 
+   params /* url params like /:id */, 
+   query, 
+   body, 
+   endpoint /* object from Api.endpoints */, 
+   context /* Api class instance */
+}) {
+	return sendRequestReturnPromise(context.baseUrl + url);
+}
 // --
 
-client.someMethod(param)  // see @call annotation
-  .then(responseBody => console.log(responseBody))
+await client.addUser({id: 1, name: 'Test'});
+
+client.users.get({id: 1} /* or just 1 if @params has only one parameter */)
+  .then(user => {
+     console.log(user.name);
+     console.log(client.requestCookieJar); // @see request.jar() https://github.com/request/request#examples
+  })
   .catch(err => {
      // @see Validation errors handling
   });
