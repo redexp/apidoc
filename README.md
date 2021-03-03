@@ -37,6 +37,7 @@ Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe s
  * [API client](#api-client)
  * [Express middleware](#express-middleware)
  * [Universal middleware](#universal-middleware)
+ * [Validation errors handling](#validation-errors-handling)
  * [Config](#config)
 
 ## @url
