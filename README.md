@@ -28,8 +28,7 @@
    * [allOf schema](#allof-schema)
    * [Extend schema](#extend-schema)
  * [object-method-call](#object-method-call)
- 
-Parameter in brackets means it's optional, like `[CODE]`. Parameters with pipe sign `|` means `or`, like `json-schema|OBJECT_NAME`.
+
 
 ## Usage
 
@@ -69,7 +68,7 @@ Validate parameters of `@url` `path`
  * @call users.get(id)
  */
 ```
-or with `OBJECT_NAME` assing for future use
+or with `OBJECT_NAME` assign for future use
 ```javascript
 /**
  * @url GET /users/:id
@@ -78,7 +77,7 @@ or with `OBJECT_NAME` assing for future use
  * }
  */
 ```
-or use external schema as root schema
+or use an external schema as root schema
 ```javascript
 /**
  * @url GET /users/:id
@@ -535,7 +534,7 @@ schema = {
 
 ### Inject external schema
 
-Using `OBJECT_NAME` you can inject external schema in current schema. 
+Using `OBJECT_NAME` you can inject an external schema in a current schema. 
 ```javascript
 /**
  * @url GET /users/:id
@@ -722,7 +721,6 @@ Parameters:
   -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
   -M, --default-method <method>  default @url METHOD
   -C, --default-code <code>  default @response CODE
-  --help                display help for command
 ```
 
 ## API client
@@ -901,7 +899,8 @@ Example
 ```json
 {
   "include": [
-    "src/**/*.js"
+    "src/**/*.js",
+    "src/**/*.php"
   ],
   "exclude": [
     "src/tests"

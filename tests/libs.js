@@ -4,6 +4,36 @@ const {expect} = chai;
 const {getDefaultSchemas} = require('../lib/schemas');
 
 describe('libs', function () {
+	it('parseComments', function (done) {
+		const parseComments = require('../lib/parseComments');
+		const {resolve} = require('path');
+
+		parseComments(resolve(__dirname, 'src', 'src1.js'))
+		.then(function (list) {
+			expect(list).to.have.length(3);
+			expect(list[1]).to.eql({
+				start: {
+					line: 15,
+					column: 1,
+				},
+				end: {
+					line: 21,
+					column: 4,
+				},
+				value: `
+ @ns controller
+ @url /controller/action
+ @response {success: boolean} // some comment !@#$%^&*()
+ @call controller.action()
+ @returns string
+`
+			});
+
+			done();
+		})
+		.catch(done);
+	});
+
 	it('parseAnnotations', function () {
 		const parseAnnotations = require('../lib/parseAnnotations');
 
@@ -27,28 +57,6 @@ describe('libs', function () {
 			},
 		]);
 
-		list = parseAnnotations(`
-		* 
-		* @test1 some text
-		* @test-2 some\ntext
-		* @test_3 some\ntext\ntext
-		* 
-		*`);
-
-		expect(list).to.deep.equal([
-			{
-				name: 'test1',
-				value: ' some text',
-			},
-			{
-				name: 'test-2',
-				value: " some\ntext",
-			},
-			{
-				name: 'test_3',
-				value: " some\ntext\ntext",
-			},
-		]);
 	});
 
 	it('parseEndpoint', function () {
