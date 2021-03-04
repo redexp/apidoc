@@ -8,26 +8,66 @@ describe('libs', function () {
 		const parseComments = require('../lib/parseComments');
 		const {resolve} = require('path');
 
-		parseComments(resolve(__dirname, 'src', 'src1.js'))
+		parseComments(resolve(__dirname, 'src', 'comments.js'))
 		.then(function (list) {
-			expect(list).to.have.length(3);
-			expect(list[1]).to.eql({
-				start: {
-					line: 15,
-					column: 1,
+			expect(list).to.have.length(5);
+			expect(list).to.eql([
+				{
+					start: {
+						line: 1,
+						column: 0
+					},
+					end: {
+						line: 3,
+						column: 3
+					},
+					value: "\n test1\n"
 				},
-				end: {
-					line: 21,
-					column: 4,
+				{
+					start: {
+						line: 6,
+						column: 1
+					},
+					end: {
+						line: 7,
+						column: 12
+					},
+					value: "\n test2 "
 				},
-				value: `
- @ns controller
- @url /controller/action
- @response {success: boolean} // some comment !@#$%^&*()
- @call controller.action()
- @returns string
-`
-			});
+				{
+					start: {
+						line: 10,
+						column: 0
+					},
+					end: {
+						line: 12,
+						column: 4
+					},
+					value: "\n test3\n"
+				},
+				{
+					start: {
+						line: 14,
+						column: 0
+					},
+					end: {
+						line: 16,
+						column: 5
+					},
+					value: "\n /** test4 /**\n "
+				},
+				{
+					start: {
+						line: 18,
+						column: 0
+					},
+					end: {
+						line: 18,
+						column: 12
+					},
+					value: " test5 "
+				}
+			]);
 
 			done();
 		})
