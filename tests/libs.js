@@ -158,7 +158,7 @@ describe('parseSchema', function () {
 				}],
 				enumInt: 1 || 2 || 3,
 				enumStr: "user" || 'account' || "item",
-				any_of: number || string || int,
+				any_of: number || string || int || null,
 				all_of: number && string && int,
 			}
 		`);
@@ -221,6 +221,8 @@ describe('parseSchema', function () {
 						"type": "string"
 					}, {
 						"type": "integer"
+					}, {
+						"type": "null"
 					}]
 				},
 				all_of: {
@@ -870,6 +872,46 @@ describe('schemas', function () {
 	const Ajv = require('ajv').default;
 	const ajv = new Ajv();
 	require('ajv-formats')(ajv);
+
+	it('null', function () {
+		var schema = require('../lib/schemas/null');
+		var test = ajv.compile(schema);
+
+		test(null);
+		expect(test.errors).to.be.null;
+
+		test(0);
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+
+		test(false);
+		expect(test.errors).to.have.length(1);
+
+		test({});
+		expect(test.errors).to.have.length(1);
+	});
+
+	it('object', function () {
+		var schema = require('../lib/schemas/object');
+		var test = ajv.compile(schema);
+
+		test({});
+		expect(test.errors).to.be.null;
+
+		test({a: 1});
+		expect(test.errors).to.have.length(1);
+
+		test('');
+		expect(test.errors).to.have.length(1);
+
+		test(false);
+		expect(test.errors).to.have.length(1);
+
+		test(null);
+		expect(test.errors).to.have.length(1);
+	});
 
 	it('string', function () {
 		var schema = require('../lib/schemas/string');

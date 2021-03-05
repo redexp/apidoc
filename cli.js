@@ -6,7 +6,7 @@ const {resolve, dirname} = require('path');
 const {getDefaultSchemas} = require('./lib/schemas');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
-const {generateAjvSchema} = require('./lib/parseSchema');
+const {generateAjvSchema, getProp} = require('./lib/parseSchema');
 const generateApiClient = require('./lib/generate/apiClient');
 const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 
@@ -20,6 +20,7 @@ program
 	.option('-C, --default-code <code>', 'default @response CODE')
 	.option('-T, --jsdoc-typedefs <boolean>', 'generate typedef, default true')
 	.option('-R, --jsdoc-refs <boolean>', 'use references to jsdoc @typedef or replace them with reference body, default true')
+	.option('-P, --extra-props <boolean>', 'value for ajv "object" additionalProperties, default false')
 ;
 
 program.parse(process.argv);
@@ -49,6 +50,7 @@ defaults(config, program, [
 	'defaultCode',
 	'jsdocRefs',
 	'jsdocTypedefs',
+	'extraProps',
 ]);
 
 var files = getFiles(config.include);
@@ -66,6 +68,11 @@ if (config.namespace && !Array.isArray(config.namespace)) {
 }
 
 var defaultSchemas = getDefaultSchemas();
+
+if (typeof config.extraProps === 'boolean') {
+	getProp(defaultSchemas.object, 'additionalProperties').value.value = config.extraProps;
+}
+
 var cache = {...defaultSchemas};
 
 filesToEndpoints(files, {...config, cache})

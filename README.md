@@ -723,6 +723,7 @@ Parameters:
   -C, --default-code <code>  default @response CODE
   -T, --jsdoc-typedefs <boolean> generate typedef, default true
   -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
+  -P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
 ```
 
 ## API client
@@ -896,7 +897,8 @@ if (err instanceof context.ValidationError) {
  * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
  * `apiClient` same as `--api-client <path>`
  * `express` same as `--express <path>`
- * `namespace` same as `--namespace <path>`
+ * `namespace` same as `--namespace <namespace>`
+ * `extraProps` same as `--extra-props <boolean>`
 
 All paths are relative to config file location.
 
