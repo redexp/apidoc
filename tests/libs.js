@@ -136,10 +136,10 @@ describe('libs', function () {
 
 describe('parseSchema', function () {
 	const parseSchema = require('../lib/parseSchema');
-	const {getAstSchema, generateAjvSchema, resetCache} = parseSchema;
+	const {getAstSchema, generateAjvSchema} = parseSchema;
 
 	beforeEach(function () {
-		resetCache(getDefaultSchemas());
+		parseSchema.cache = getDefaultSchemas();
 	});
 
 	it('json-schema', function () {
@@ -242,6 +242,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema = {test1: string}`);
 		expect(parseSchema.cache).to.property('Schema');
 		expect(res).to.eql({
+			"title": "Schema",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test1"],
@@ -256,6 +257,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field = {test2: string}`);
 		expect(parseSchema.cache).to.property('Schema.field');
 		expect(res).to.eql({
+			"title": "Schema.field",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test2"],
@@ -269,6 +271,7 @@ describe('parseSchema', function () {
 		res = parseSchema(`Schema.field1.field2 = {test3: string}`);
 		expect(parseSchema.cache).to.property('Schema.field1.field2');
 		expect(res).to.eql({
+			"title": "Schema.field1.field2",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test3"],
@@ -289,6 +292,7 @@ describe('parseSchema', function () {
 
 		res = parseSchema(`Schema`);
 		expect(res).to.eql({
+			"title": "Schema",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test1"],
@@ -301,6 +305,7 @@ describe('parseSchema', function () {
 
 		res = parseSchema(`Schema.field`);
 		expect(res).to.eql({
+			"title": "Schema.field",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test2"],
@@ -313,6 +318,7 @@ describe('parseSchema', function () {
 
 		res = parseSchema(`Schema.field1.field2`);
 		expect(res).to.eql({
+			"title": "Schema.field1.field2",
 			"type": "object",
 			"additionalProperties": false,
 			"required": ["test3"],
@@ -363,49 +369,49 @@ describe('parseSchema', function () {
 		var res;
 
 		res = parseSchema(`Schema = AnotherSchema`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema'});
 		res = parseSchema(`Schema`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema'});
 
 		res = parseSchema(`Schema.field = AnotherSchema`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema.field'});
 		res = parseSchema(`Schema.field`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema.field'});
 
 		res = parseSchema(`Schema.field1.field2 = AnotherSchema`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema.field1.field2'});
 		res = parseSchema(`Schema.field1.field2`);
-		expect(res).to.eql(test1);
+		expect(res).to.eql({...test1, title: 'Schema.field1.field2'});
 
 		res = parseSchema(`Schema = AnotherSchema.field`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema'});
 		res = parseSchema(`Schema`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema'});
 
 		res = parseSchema(`Schema = AnotherSchema.field1.field2`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema'});
 		res = parseSchema(`Schema`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema'});
 
 		res = parseSchema(`Schema.field = AnotherSchema.field`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema.field'});
 		res = parseSchema(`Schema.field`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema.field'});
 
 		res = parseSchema(`Schema.field1.field2 = AnotherSchema.field`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema.field1.field2'});
 		res = parseSchema(`Schema.field1.field2`);
-		expect(res).to.eql(test2);
+		expect(res).to.eql({...test2, title: 'Schema.field1.field2'});
 
 		res = parseSchema(`Schema.field = AnotherSchema.field1.field2`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema.field'});
 		res = parseSchema(`Schema.field`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema.field'});
 
 		res = parseSchema(`Schema.field1.field2 = AnotherSchema.field1.field2`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema.field1.field2'});
 		res = parseSchema(`Schema.field1.field2`);
-		expect(res).to.eql(test3);
+		expect(res).to.eql({...test3, title: 'Schema.field1.field2'});
 	});
 
 	it(`OBJECT_NAME && OBJECT_NAME`, function () {
@@ -416,7 +422,9 @@ describe('parseSchema', function () {
 		var res = parseSchema(`AllOf = One && Two && Three`);
 
 		expect(res).to.eql(parseSchema('AllOf')).and.to.eql({
+			"title": "AllOf",
 			"allOf": [{
+				"title": "One",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test1"],
@@ -426,6 +434,7 @@ describe('parseSchema', function () {
 					}
 				}
 			}, {
+				"title": "Two",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test2"],
@@ -435,6 +444,7 @@ describe('parseSchema', function () {
 					}
 				}
 			}, {
+				"title": "Three",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test3"],
@@ -448,7 +458,9 @@ describe('parseSchema', function () {
 		res = parseSchema(`AnyOf = One || Two || Three`);
 
 		expect(res).to.eql(parseSchema('AnyOf')).and.to.eql({
+			"title": "AnyOf",
 			"anyOf": [{
+				"title": "One",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test1"],
@@ -458,6 +470,7 @@ describe('parseSchema', function () {
 					}
 				}
 			}, {
+				"title": "Two",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test2"],
@@ -467,6 +480,7 @@ describe('parseSchema', function () {
 					}
 				}
 			}, {
+				"title": "Three",
 				"type": "object",
 				"additionalProperties": false,
 				"required": ["test3"],
@@ -553,6 +567,7 @@ describe('parseSchema', function () {
 			required: ['id'],
 			properties: {
 				id: {
+					"title": "Test",
 					type: 'number'
 				}
 			}
@@ -561,6 +576,7 @@ describe('parseSchema', function () {
 		res = generateAjvSchema(schema2, cache);
 
 		expect(res).to.eql({
+			"title": "Test",
 			type: 'number'
 		});
 	});
@@ -620,20 +636,25 @@ describe('parseSchema', function () {
 				...{
 					id: number,
 					name: number,
+					test: string,
 				},
+				required: ['id', 'name'],
 			}
 		`);
 
 		expect(schema).to.eql({
 			type: 'object',
 			additionalProperties: false,
-			required: ['name', 'id'],
+			required: ['id', 'name'],
 			properties: {
 				id: {
 					type: 'number'
 				},
 				name: {
 					type: 'number'
+				},
+				test: {
+					type: 'string'
 				}
 			}
 		});
@@ -649,6 +670,60 @@ describe('parseSchema', function () {
 		expect(schema).to.eql({
 			type: 'string',
 			extra: 'test',
+		});
+
+		parseSchema(`File = {id: id, name: string, path: string}`);
+
+		schema = parseSchema(`
+			{
+				...File,
+				id: undefined,
+				...{
+					type: 'object',
+					required: ['name']
+				},
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			required: ['name'],
+			properties: {
+				name: {
+					type: 'string'
+				},
+				path: {
+					type: 'string'
+				}
+			}
+		});
+
+		schema = parseSchema(`
+			{
+				...File,
+				
+				type: 'object',
+				required: ['name'],
+			}
+		`);
+
+		expect(schema).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			required: ['name'],
+			properties: {
+				id: {
+					type: 'integer',
+					minimum: 1,
+				},
+				name: {
+					type: 'string'
+				},
+				path: {
+					type: 'string'
+				}
+			}
 		});
 	});
 });
@@ -718,11 +793,14 @@ describe('annotations', function () {
 			schema: parseSchema(code),
 		});
 
+		code = `Schema = ${code}`;
+
 		data = schema.prepare(code);
 		data.schema = parseSchema(data.schema);
 		data = schema(data);
 
 		expect(data).to.eql({
+			name: 'Schema',
 			schema: parseSchema(code),
 		});
 	});

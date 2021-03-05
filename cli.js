@@ -3,8 +3,10 @@
 const {program} = require('commander');
 const fs = require('fs');
 const {resolve, dirname} = require('path');
+const {getDefaultSchemas} = require('./lib/schemas');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
+const {generateAjvSchema} = require('./lib/parseSchema');
 const generateApiClient = require('./lib/generate/apiClient');
 const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 
@@ -16,6 +18,8 @@ program
 	.option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 	.option('-M, --default-method <method>', 'default @url METHOD')
 	.option('-C, --default-code <code>', 'default @response CODE')
+	.option('-T, --jsdoc-typedefs <boolean>', 'generate typedef, default true')
+	.option('-R, --jsdoc-refs <boolean>', 'use references to jsdoc @typedef or replace them with reference body, default true')
 ;
 
 program.parse(process.argv);
@@ -36,11 +40,16 @@ if (!config.include) {
 config.include = config.include.map(path => resolve(configDir, path));
 config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
 config.apiClient = program.apiClient || (config.apiClient && resolve(configDir, config.apiClient));
-config.baseUrl = program.baseUrl || config.baseUrl;
 config.express = program.express || (config.express && resolve(configDir, config.express));
-config.namespace = program.namespace || config.namespace;
-config.defaultMethod = program.defaultMethod || config.defaultMethod;
-config.defaultCode = program.defaultCode || config.defaultCode;
+
+defaults(config, program, [
+	'baseUrl',
+	'namespace',
+	'defaultMethod',
+	'defaultCode',
+	'jsdocRefs',
+	'jsdocTypedefs',
+]);
 
 var files = getFiles(config.include);
 
@@ -56,7 +65,10 @@ if (config.namespace && !Array.isArray(config.namespace)) {
 	config.namespace = config.namespace.split(',').map(v => v.trim()).filter(v => !!v);
 }
 
-filesToEndpoints(files, config)
+var defaultSchemas = getDefaultSchemas();
+var cache = {...defaultSchemas};
+
+filesToEndpoints(files, {...config, cache})
 	.then(function (endpoints) {
 		if (config.namespace) {
 			let namespaces = config.namespace.reduce(function (hash, name) {
@@ -69,6 +81,14 @@ filesToEndpoints(files, config)
 			});
 		}
 
+		var schemas = {};
+
+		for (let name in cache) {
+			if (defaultSchemas.hasOwnProperty(name)) continue;
+
+			schemas[name] = generateAjvSchema(cache[name], cache);
+		}
+
 		var promises = [];
 
 		if (config.apiClient) {
@@ -76,6 +96,9 @@ filesToEndpoints(files, config)
 				generateApiClient(config.apiClient, {
 					baseUrl: config.baseUrl,
 					endpoints: endpoints.filter(e => !!e.call),
+					schemas,
+					jsdocTypedefs: config.jsdocTypedefs,
+					jsdocRefs: config.jsdocRefs,
 				})
 			);
 		}
@@ -84,6 +107,8 @@ filesToEndpoints(files, config)
 			promises.push(
 				generateExpressMiddleware(config.express, {
 					endpoints,
+					schemas,
+					jsdocTypedefs: config.jsdocTypedefs,
 				})
 			);
 		}
@@ -97,3 +122,14 @@ filesToEndpoints(files, config)
 		console.error(err);
 		process.exit(1);
 	});
+
+function defaults(target, src, props) {
+	props.forEach(function (prop) {
+		var value = target[prop] = src[prop] || target[prop];
+
+		try {
+			target[prop] = JSON.parse(value);
+		}
+		catch (err) {}
+	});
+}

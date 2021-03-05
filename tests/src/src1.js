@@ -1,6 +1,6 @@
 /**
  * @url POST /some/path/:id
- * @params {id: number}
+ * @params Test
  * @query {r: number, [q]: string}
  * @body {type: 'object'}
  * @response 200 {data: Test}

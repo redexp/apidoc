@@ -721,6 +721,8 @@ Parameters:
   -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
   -M, --default-method <method>  default @url METHOD
   -C, --default-code <code>  default @response CODE
+  -T, --jsdoc-typedefs <boolean> generate typedef, default true
+  -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
 ```
 
 ## API client
@@ -890,6 +892,9 @@ if (err instanceof context.ValidationError) {
  * `exclude` array of paths to files to be excluded
  * `defaultMethod` overwrites default [METHOD](#method). Default is `GET`
  * `defaultCode` overwrites default [CODE](#code). Default is `200`
+ * `jsdocTypedefs` generate `@typedef` for each named schema. Default is `true`
+ * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
+ * `apiClient` same as `--api-client <path>`
  * `express` same as `--express <path>`
  * `namespace` same as `--namespace <path>`
 
