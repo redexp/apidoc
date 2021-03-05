@@ -132,6 +132,33 @@ describe('libs', function () {
 			}
 		])).to.throw('Unknown annotation "test"');
 	});
+
+	it('ajvToJsDoc', function () {
+		const ajvToJsDoc = require('../lib/ajvToJsDoc');
+
+		var jsdoc = ajvToJsDoc({
+			type: 'object',
+			required: ['id'],
+			properties: {
+				id: {type: 'number'},
+				name: {type: 'string'},
+				user_id: {anyOf: [{type: 'number'}, {type: 'null'}]},
+			},
+		});
+		expect(jsdoc).to.eql('{"id": number, "name"?: string, "user_id"?: ?number}');
+
+		jsdoc = ajvToJsDoc({type: 'array'});
+		expect(jsdoc).to.eql('Array');
+
+		jsdoc = ajvToJsDoc({type: 'array', items: {type: 'string'}});
+		expect(jsdoc).to.eql('Array<string>');
+
+		jsdoc = ajvToJsDoc({anyOf: [{type: 'object'}, {type: 'null'}]});
+		expect(jsdoc).to.eql('?Object');
+
+		jsdoc = ajvToJsDoc({anyOf: [{type: 'object'}, {type: 'number'}]});
+		expect(jsdoc).to.eql('Object|number');
+	});
 });
 
 describe('parseSchema', function () {
