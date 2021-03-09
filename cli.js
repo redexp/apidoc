@@ -9,12 +9,14 @@ const filesToEndpoints = require('./lib/filesToEndpoints');
 const {generateAjvSchema, getProp} = require('./lib/parseSchema');
 const generateApiClient = require('./lib/generate/apiClient');
 const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
+const generateOpenApi = require('./lib/generate/openApi');
 
 program
 	.requiredOption('-c, --config <path>', 'path to config json file')
 	.option('-a, --api-client <path>', 'generate api client')
 	.option('-b, --base-url <url>', 'default Api.baseUrl')
 	.option('-e, --express <path>', 'generate express middleware validator')
+	.option('-o, --open-api <path>', 'generate Swagger OpenAPI v3 json')
 	.option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 	.option('-M, --default-method <method>', 'default @url METHOD')
 	.option('-C, --default-code <code>', 'default @response CODE')
@@ -40,8 +42,12 @@ if (!config.include) {
 
 config.include = config.include.map(path => resolve(configDir, path));
 config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
-config.apiClient = program.apiClient || (config.apiClient && resolve(configDir, config.apiClient));
-config.express = program.express || (config.express && resolve(configDir, config.express));
+
+resolvePath(config, program, [
+	'apiClient',
+	'express',
+	'openApi',
+]);
 
 defaults(config, program, [
 	'baseUrl',
@@ -120,6 +126,15 @@ filesToEndpoints(files, {...config, cache})
 			);
 		}
 
+		if (config.openApi) {
+			promises.push(
+				generateOpenApi(config.openApi, {
+					endpoints: endpoints.filter(e => !!e.url),
+					schemas,
+				})
+			);
+		}
+
 		return Promise.all(promises);
 	})
 	.then(function () {
@@ -129,6 +144,13 @@ filesToEndpoints(files, {...config, cache})
 		console.error(err);
 		process.exit(1);
 	});
+
+
+function resolvePath(target, src, props) {
+	props.forEach(function (prop) {
+		target[prop] = src[prop] || (target[prop] && resolve(configDir, target[prop]));
+	});
+}
 
 function defaults(target, src, props) {
 	props.forEach(function (prop) {

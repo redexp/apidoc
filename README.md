@@ -36,6 +36,7 @@
  * [API client](#api-client)
  * [Express middleware](#express-middleware)
  * [Universal middleware](#universal-middleware)
+ * [Swagger OpenAPI](#swagger-openapi)
  * [Validation errors handling](#validation-errors-handling)
  * [Config](#config)
 
@@ -717,10 +718,11 @@ Parameters:
   -c, --config <path> path to config json file
   -a, --api-client <path> generate api client
   -b, --base-url <url> default Api.baseUrl
-  -e, --express <path>  generate express middleware validator
-  -n, --namespace <namespace>  generate validators only with this namespace or comma separated namespaces
-  -M, --default-method <method>  default @url METHOD
-  -C, --default-code <code>  default @response CODE
+  -e, --express <path> generate express middleware validator
+  -o, --open-api <path> generate Swagger OpenAPI v3 json
+  -n, --namespace <namespace> generate validators only with this namespace or comma separated namespaces
+  -M, --default-method <method> default @url METHOD
+  -C, --default-code <code> default @response CODE
   -T, --jsdoc-typedefs <boolean> generate typedef, default true
   -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
   -P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
@@ -856,6 +858,10 @@ function sendMessage(path, data) {
 }
 ```
 
+## Swagger OpenAPI
+
+Generate Swagger OpenAPI v3 json with `npx adv -c path/to/config.json -o path/to/open-api.json`
+
 ## Validation errors handling
 
 Both Api class and middleware exports three classes:
@@ -897,6 +903,7 @@ if (err instanceof context.ValidationError) {
  * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
  * `apiClient` same as `--api-client <path>`
  * `express` same as `--express <path>`
+ * `openApi` same as `--open-api <path>`
  * `namespace` same as `--namespace <namespace>`
  * `extraProps` same as `--extra-props <boolean>`
 

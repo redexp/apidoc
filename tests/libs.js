@@ -885,10 +885,12 @@ describe('annotations', function () {
 						const: 200,
 					},
 					{
+						title: '3xx',
 						type: 'string',
 						pattern: '^3\\d\\d$',
 					},
 					{
+						title: '400 - 500',
 						type: 'number',
 						minimum: 400,
 						maximum: 500,

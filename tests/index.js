@@ -133,7 +133,8 @@ describe('config file', function () {
 
 			validator = require(path);
 
-			expect(validator.endpoints[0].response[0].code).to.eql({
+			expect(validator).to.have.nested.property('endpoints[0].response[0].code').that.to.eql({
+				title: '5xx',
 				type: 'string',
 				pattern: '^5\\d\\d$'
 			});
@@ -179,6 +180,23 @@ describe('config file', function () {
 				result = await client.app.test1({id: 100}, {r: 200, q: 'test'}, {any: 'value'});
 				expect(result).to.eql({data: '21x'});
 				expect(n).to.eql(2);
+			})
+			.then(done, done);
+	});
+
+	it('should generate OpenAPI', function (done) {
+		var path = cwd('output', 'cliOpenAPI.json');
+
+		remove(path);
+
+		exec(`node cli.js -c ${cwd('apidoc.json')} -o ${path}`)
+			.then(async function () {
+				isExist(path);
+
+				var schema1 = JSON.parse(fs.readFileSync(path).toString());
+				var schema2 = JSON.parse(fs.readFileSync(cwd('static', 'open-api.json')).toString());
+
+				expect(schema1).to.eql(schema2);
 			})
 			.then(done, done);
 	});

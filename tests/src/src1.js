@@ -4,7 +4,7 @@
  * @query {r: number, [q]: string}
  * @body {type: 'object'}
  * @response 200 {data: Test}
- * @response 21x {data: '21x'}
+ * @response 21x Test2 = {data: '21x'}
  * @response 300 - 400 {data: {id: id}}
  * @response 4xx || 500 || 501 - 600 {data: {test: negative}}
  * @call app.test1()
