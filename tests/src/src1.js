@@ -4,7 +4,7 @@
  * @url POST /some/path/:id
  * @params Test
  * @query {
- *   // desc for r param
+ *   # desc for r param
  *   r: number,
  *   [q]: string, // desc for q param
  * }

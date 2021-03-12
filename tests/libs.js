@@ -830,7 +830,6 @@ describe('annotations', function () {
 		data = body(data);
 
 		expect(data).to.eql({
-			description: undefined,
 			schema: parseSchema(code),
 		});
 
@@ -839,9 +838,10 @@ describe('annotations', function () {
 		data = body(data);
 
 		expect(data).to.eql({
-			description: 'Desc',
-			schema: parseSchema(code),
+			schema: parseSchema('# Desc\n' + code),
 		});
+
+		expect(data.schema).to.have.property('description').that.to.eql('Desc');
 
 		code = `Schema = ${code}`;
 
@@ -874,7 +874,6 @@ describe('annotations', function () {
 		var data = response.prepare(`{id: number}`);
 
 		expect(data).to.eql({
-			description: undefined,
 			code: {
 				type: 'number',
 				const: 200,
@@ -885,7 +884,6 @@ describe('annotations', function () {
 		data = response.prepare(`300 {id: int}`);
 
 		expect(data).to.eql({
-			description: undefined,
 			code: {
 				type: 'number',
 				const: 300,
@@ -896,7 +894,6 @@ describe('annotations', function () {
 		data = response.prepare(`200 || 3xx || 400 - 500\n# Desc\n User = {id: uuid}`);
 
 		expect(data).to.eql({
-			description: 'Desc',
 			code: {
 				anyOf: [
 					{
@@ -916,7 +913,7 @@ describe('annotations', function () {
 					},
 				]
 			},
-			schema: `User = {id: uuid}`,
+			schema: `# Desc\n User = {id: uuid}`,
 		});
 	});
 });

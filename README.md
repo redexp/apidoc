@@ -33,6 +33,7 @@
 ## Usage
 
  * [cli](#cli)
+ * [cli](#cli)
  * [API client](#api-client)
  * [Express middleware](#express-middleware)
  * [Universal middleware](#universal-middleware)
@@ -65,7 +66,7 @@ Validate parameters of `@url` `path`
 /**
  * @url GET /users/:id
  * @params {
- *   // some description for `id` (usefull for OpenApi)
+ *   # some description for `id` (usefull for OpenApi)
  *   id: number,
  * }
  * @call users.get(id)
