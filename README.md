@@ -1,6 +1,6 @@
 # api ➡️ doc ➡️ validator
 
-[![Build Status](https://travis-ci.org/redexp/apidoc.svg?branch=master)](https://travis-ci.org/redexp/apidoc)
+[![Build Status](https://travis-ci.com/redexp/apidoc.svg?branch=master)](https://travis-ci.com/redexp/apidoc)
 
 ## Annotations
 
