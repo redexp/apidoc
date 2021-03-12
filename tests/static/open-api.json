@@ -18,6 +18,7 @@
           "name": "r",
           "in": "query",
           "required": true,
+          "description": "desc for r param",
           "schema": {
             "type": "number"
           }
@@ -26,13 +27,16 @@
           "name": "q",
           "in": "query",
           "required": false,
+          "description": "desc for q param",
           "schema": {
             "type": "string"
           }
         }
       ],
       "post": {
+        "description": "Some description\nsecond lines",
         "requestBody": {
+          "description": "Body desc",
           "content": {
             "application/json": {
               "schema": {
@@ -43,6 +47,7 @@
         },
         "responses": {
           "200": {
+            "description": "Resp 200 desc",
             "content": {
               "application/json": {
                 "schema": {
@@ -99,6 +104,7 @@
             }
           },
           "21X": {
+            "description": "Resp 21x desc",
             "content": {
               "application/json": {
                 "schema": {
@@ -199,6 +205,7 @@
       "get": {
         "responses": {
           "200": {
+            "description": "some comment !@#$%^&*()",
             "content": {
               "application/json": {
                 "schema": {
@@ -301,13 +308,16 @@
                           "type": "number"
                         },
                         "lat": {
+                          "description": "some comment 1!@#$%^&*()",
                           "type": "number"
                         }
                       }
                     },
                     "weather": {
+                      "description": "comment 3",
                       "type": "array",
                       "items": {
+                        "description": "comment 2.1",
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
@@ -318,6 +328,7 @@
                         ],
                         "properties": {
                           "id": {
+                            "description": "comment 2.2",
                             "type": "number"
                           },
                           "main": {

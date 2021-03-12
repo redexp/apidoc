@@ -78,11 +78,17 @@ describe('libs', function () {
 		const parseAnnotations = require('../lib/parseAnnotations');
 
 		var list = parseAnnotations(`
+		Some text
+		second line
 		@test1 some text
 		@test-2 some\ntext
 		@test_3 some\ntext\ntext\n`);
 
 		expect(list).to.deep.equal([
+			{
+				name: 'description',
+				value: 'Some text\nsecond line',
+			},
 			{
 				name: 'test1',
 				value: ' some text',
@@ -824,6 +830,16 @@ describe('annotations', function () {
 		data = body(data);
 
 		expect(data).to.eql({
+			description: undefined,
+			schema: parseSchema(code),
+		});
+
+		data = body.prepare('# Desc\n' + code);
+		data.schema = parseSchema(data.schema);
+		data = body(data);
+
+		expect(data).to.eql({
+			description: 'Desc',
 			schema: parseSchema(code),
 		});
 
@@ -858,6 +874,7 @@ describe('annotations', function () {
 		var data = response.prepare(`{id: number}`);
 
 		expect(data).to.eql({
+			description: undefined,
 			code: {
 				type: 'number',
 				const: 200,
@@ -868,6 +885,7 @@ describe('annotations', function () {
 		data = response.prepare(`300 {id: int}`);
 
 		expect(data).to.eql({
+			description: undefined,
 			code: {
 				type: 'number',
 				const: 300,
@@ -875,9 +893,10 @@ describe('annotations', function () {
 			schema: `{id: int}`,
 		});
 
-		data = response.prepare(`200 || 3xx || 400 - 500 User = {id: uuid}`);
+		data = response.prepare(`200 || 3xx || 400 - 500\n# Desc\n User = {id: uuid}`);
 
 		expect(data).to.eql({
+			description: 'Desc',
 			code: {
 				anyOf: [
 					{

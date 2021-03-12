@@ -1,10 +1,28 @@
 /**
+ * Some description
+ * second lines
  * @url POST /some/path/:id
  * @params Test
- * @query {r: number, [q]: string}
- * @body {type: 'object'}
- * @response 200 {data: Test}
- * @response 21x Test2 = {data: '21x'}
+ * @query {
+ *   // desc for r param
+ *   r: number,
+ *   [q]: string, // desc for q param
+ * }
+ * @body
+ * # Body desc
+ * {
+ *   type: 'object'
+ * }
+ * @response 200
+ * // Resp 200 desc
+ * {
+ *   data: Test
+ * }
+ * @response 21x
+ * # Resp 21x desc
+ * Test2 = {
+ *   data: '21x'
+ * }
  * @response 300 - 400 {data: {id: id}}
  * @response 4xx || 500 || 501 - 600 {data: {test: negative}}
  * @call app.test1()

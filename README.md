@@ -48,6 +48,7 @@
 
 ```javascript
 /**
+ * Some description
  * @url POST /path/:param
  */
 ```
@@ -64,7 +65,8 @@ Validate parameters of `@url` `path`
 /**
  * @url GET /users/:id
  * @params {
- *     id: number,
+ *   // some description for `id` (usefull for OpenApi)
+ *   id: number,
  * }
  * @call users.get(id)
  */
@@ -74,7 +76,7 @@ or with `OBJECT_NAME` assign for future use
 /**
  * @url GET /users/:id
  * @params User = {
- *     id: number,
+ *   id: number, // description for `id`
  * }
  */
 ```
@@ -90,8 +92,8 @@ or extend external schema
 /**
  * @url GET /users/:id
  * @params {
- *     ...User,
- *     name: string,
+ *   ...User,
+ *   name: string,
  * }
  */
 ```
@@ -132,14 +134,26 @@ Names of fields in `@params` and `query` should be different to use them in `@ca
 ## @body
 
 ```
-@body [OBJECT_NAME =] json-schema|OBJECT_NAME
+@body [# Description] [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 
 ```javascript
 /**
  * @body {
- *     id: number,
- *     name: string,
+ *   id: number,
+ *   name: string,
+ * }
+
+ * @body User = {
+ *   id: number,
+ *   name: string,
+ * }
+
+ * @body 
+ * # Some body description
+ * User = {
+ *   id: number,
+ *   name: string,
  * }
  */
 ```
@@ -149,14 +163,14 @@ Names of fields in `@params` and `query` should be different to use them in `@ca
 Response http code and validation of response body.
 
 ```
-@response [CODE] [OBJECT_NAME =] json-schema|OBJECT_NAME
+@response [CODE] [# Description] [OBJECT_NAME =] json-schema|OBJECT_NAME
 ```
 Response for `200` code
 ```javascript
 /**
  * @response {
- *     id: number,
- *     name: string,
+ *   id: number,
+ *   name: string,
  * }
  */
 ```
@@ -164,18 +178,22 @@ Validators for different codes of same request
 ```javascript
 /**
  * @response 200 {
- *     id: number,
- *     name: string,
+ *   id: number,
+ *   name: string,
  * }
- * @response 500 {
- *     message: string,
+ * @response 500 
+ * # Some description
+ * {
+ *   message: string,
  * }
  */
 ```
 
 ## @namespace
 
-Word used to filter validators in target file. You can use shortcut `@ns`
+Shortcut `@ns`
+
+Word used to filter validators in target file.
 
 ```js
 /**
@@ -494,12 +512,15 @@ Instead of short `string` validator you can use one of following string patterns
  * `ipv6` IP address v6.
  * `regex` tests whether a string is a valid regular expression by passing it to RegExp constructor.
  * `uuid` Universally Unique Identifier according to RFC4122.
+
+Also, regexp will be converted to `{pattern: "regexp"}`
  
 ```javascript
 schema = {
     id: uuid,
     email: email,
     created_at: date-time,
+    phone: /^\+?\d+$/,
     days: [date],
 }
 ```
@@ -508,7 +529,7 @@ Will be converted to
 schema = {
     type: "object",
     additionalProperties: false,
-    required: ['id', 'email', 'created_at', 'days'],
+    required: ['id', 'email', 'created_at', 'phone', 'days'],
     properties: {
         id: {
             type: "string",
@@ -521,6 +542,10 @@ schema = {
         created_at: {
             type: "string",
             format: "date-time",
+        },
+        phone: {
+            type: "string",
+            pattern: "^\\+?\\d+$",
         },
         days: {
             type: "array",
