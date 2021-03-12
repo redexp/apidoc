@@ -1259,7 +1259,7 @@ describe('generate', function () {
 
 		filesToEndpoints([resolve(__dirname, 'src', 'src1.js'), resolve(__dirname, 'src', 'sub1', 'sub2', 'sub2.js')])
 			.then(function (endpoints) {
-				generator(resolve(__dirname, 'output', 'expressMiddleware.js'), {
+				return generator(resolve(__dirname, 'output', 'expressMiddleware.js'), {
 					endpoints
 				});
 			})
