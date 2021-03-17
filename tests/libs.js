@@ -780,6 +780,7 @@ describe('parseSchema', function () {
 		parseSchema(`Test9 = {uuid: User.prop('name')}`);
 		parseSchema(`Test10 = /d+/.set('minLength', 10)`);
 		parseSchema(`Test11 = {type: 'string'}.set('minLength', 10)`);
+		parseSchema(`Test12 = number.not({minimum: 10})`);
 		parseSchema(`Total = User
 			.pick('id', 'name')
 			.remove('id')
@@ -807,6 +808,7 @@ describe('parseSchema', function () {
 		expect(g(c.Test9)).to.eql(p(`Test9 = {uuid: string}`));
 		expect(g(c.Test10)).to.eql(p(`Test10 = {type: 'string', pattern: "d+", minLength: 10}`));
 		expect(g(c.Test11)).to.eql(p(`Test11 = {type: 'string', 'minLength': 10}`));
+		expect(g(c.Test12)).to.eql(p(`Test12 = {type: 'number', not: {minimum: 10}}`));
 		expect(g(c.Total)).to.eql(p(`Total = {name: string, [token]: uuid, ...{type: 'object', additionalProperties: true}}`));
 
 	});
@@ -1289,176 +1291,297 @@ describe('schemas', function () {
 	});
 });
 
-describe('generate', function () {
-	it('express', function (done) {
-		this.timeout(5000);
+describe('methods', function () {
+	var p = require('../lib/parseSchema');
 
-		const filesToEndpoints = require('../lib/filesToEndpoints');
-		const generator = require('../lib/generate/expressMiddleware');
-		const {resolve} = require('path');
-		const {application, request, response} = require('express');
+	beforeEach(function () {
+		p.cache = getDefaultSchemas();
+	});
 
-		filesToEndpoints([resolve(__dirname, 'src', 'src1.js'), resolve(__dirname, 'src', 'sub1', 'sub2', 'sub2.js')])
-			.then(function (endpoints) {
-				return generator(resolve(__dirname, 'output', 'expressMiddleware.js'), {
-					endpoints
-				});
+	describe('object', function () {
+		it('additionalProperties', function () {
+			expect(p(`{id: number}.additionalProperties(true)`)).to.eql({
+				type: 'object',
+				additionalProperties: true,
+				required: ['id'],
+				properties: {
+					id: {type: 'number'}
+				},
+			});
+		});
+
+		it('dependencies, dependentRequired', function () {
+			expect(p(`{id: number}.dependencies({id: ['name']})`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['id'],
+				properties: {
+					id: {type: 'number'}
+				},
+				dependentRequired: {id: ['name']}
+			});
+			expect(p(`{id: number}.dependentRequired({id: ['name']})`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['id'],
+				properties: {
+					id: {type: 'number'}
+				},
+				dependentRequired: {id: ['name']}
+			});
+		});
+
+		it('minProperties, maxProperties', function () {
+			expect(p(`{id: number}.minProperties(1).maxProperties(10)`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['id'],
+				properties: {
+					id: {type: 'number'}
+				},
+				minProperties: 1,
+				maxProperties: 10,
+			});
+		});
+
+		it('required, notRequired, optional', function () {
+			expect(p(`
+			{
+				test1: number, 
+				test2: number, 
+				[test3]: number, 
+				[test4]: number, 
+				[test5]: number,
+				test6: number,
+				test7: number,
+			}
+			.required('test3', 'test4')
+			.notRequired('test1', 'test2')
+			.optional('test5', 'test6')`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['test7', 'test3', 'test4'],
+				properties: {
+					test1: {type: 'number'},
+					test2: {type: 'number'},
+					test3: {type: 'number'},
+					test4: {type: 'number'},
+					test5: {type: 'number'},
+					test6: {type: 'number'},
+					test7: {type: 'number'},
+				},
+			});
+		});
+
+		it('patternProperties', function () {
+			expect(p(`
+			{
+				test1: number, 
+			}
+			.patternProperties({
+				"^s+$": string,
+				"^o+$": {id: number},
 			})
-			.then(async function () {
-				const test = require('./output/expressMiddleware');
-
-				const runTest = function (reqData, code, resBody) {
-					return new Promise(function (done) {
-						const app = Object.assign(Object.create(application), {
-							settings: {}
-						});
-
-						const req = Object.assign(Object.create(request), reqData, {app});
-
-						const res = Object.assign(Object.create(response), {
-							app,
-							json: done,
-						});
-
-						const next = function (err) {
-							if (err) {
-								done(err);
-								return;
-							}
-
-							res.status(code);
-							res.json(resBody);
-						};
-
-						try {
-							test(req, res, next);
-						}
-						catch (error) {
-							done(error);
-						}
-					});
-				};
-
-				var req = {
-					method: 'POST',
-					url: '/some/path/100',
-					query: {
-						r: 1
+			`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['test1'],
+				properties: {
+					test1: {type: 'number'},
+				},
+				patternProperties: {
+					"^s+$": {type: 'string'},
+					"^o+$": {
+						type: 'object',
+						additionalProperties: false,
+						required: ['id'],
+						properties: {
+							id: {type: 'number'},
+						},
 					},
-					params: {
-						id: '100'
-					},
-					body: {},
-				};
-
-				var data = await runTest(req, 200, {
-					data: {id: '1'}
-				});
-
-				expect(req.params.id).to.equal(100);
-
-				expect(data).to.eql({
-					data: {id: 1}
-				});
-
-				req.params.id = 'a';
-
-				data = await runTest(req, 200, {
-					data: {id: '1'}
-				});
-
-				expect(data).to.be.instanceof(test.RequestValidationError);
-
-				expect(data).to.shallowDeepEqual({
-					message: 'Invalid URL params',
-					property: 'params',
-					errors: [{
-						dataPath: "/id",
-						message: "should be number",
-					}]
-				});
-
-				req.params.id = '100';
-
-				data = await runTest(req, 200, {
-					data: {id: 'a'}
-				});
-
-				expect(data).to.be.instanceof(test.ResponseValidationError);
-
-				expect(data).to.shallowDeepEqual({
-					message: 'Invalid response body',
-					errors: [{
-						dataPath: "/data/id",
-						message: "should be number",
-					}]
-				});
-
-				data = await runTest(req, 210, {
-					data: '21x'
-				});
-
-				expect(data).to.eql({
-					data: '21x'
-				});
-
-				data = await runTest(req, 210, {
-					data: '21y'
-				});
-
-				expect(data).to.shallowDeepEqual({
-					message: 'Invalid response body',
-					errors: [{
-						"dataPath": "/data",
-						"message": "should be equal to constant"
-					}]
-				});
-
-				data = await runTest(req, 350, {
-					data: {id: 1}
-				});
-
-				expect(data).to.eql({
-					data: {id: 1}
-				});
-
-				data = await runTest(req, 350, {
-					data: {id: 0}
-				});
-
-				expect(data).to.shallowDeepEqual({
-					message: 'Invalid response body',
-					errors: [{
-						"dataPath": "/data/id",
-						"message": "should be >= 1"
-					}]
-				});
-
-				var codes = [404, 500, 505];
-
-				for (let i = 0; i < codes.length; i++) {
-					data = await runTest(req, codes[i], {
-						data: {test: -1}
-					});
-
-					expect(data).to.eql({
-						data: {test: -1}
-					});
-
-					data = await runTest(req, codes[i], {
-						data: {test: 'a'}
-					});
-
-					expect(data).to.shallowDeepEqual({
-						message: 'Invalid response body',
-						errors: [{
-							"dataPath": "/data/test",
-							"message": "should be number"
-						}],
-					});
 				}
-			})
-			.then(done)
-			.catch(done);
+			});
+		});
+
+		it('propertyNames', function () {
+			expect(p(`
+			{
+				test1: number, 
+			}
+			.propertyNames(uuid)
+			`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['test1'],
+				properties: {
+					test1: {type: 'number'},
+				},
+				propertyNames: {
+					type: 'string',
+					format: 'uuid',
+				}
+			});
+		});
+
+		it('unevaluatedProperties', function () {
+			expect(p(`
+			{
+				test1: number, 
+			}
+			.unevaluatedProperties(true)
+			`)).to.eql({
+				type: 'object',
+				additionalProperties: false,
+				required: ['test1'],
+				properties: {
+					test1: {type: 'number'},
+				},
+				unevaluatedProperties: true
+			});
+		});
+	});
+
+	describe('array', function () {
+		it('additionalItems', function () {
+			expect(p(`
+			[number]
+			.additionalItems(true)
+			`)).to.eql({
+				type: 'array',
+				additionalItems: true,
+				items: {
+					type: "number"
+				}
+			});
+		});
+
+		it('contains', function () {
+			expect(p(`
+			[number]
+			.contains(string)
+			`)).to.eql({
+				type: 'array',
+				items: {type: "number"},
+				contains: {type: 'string'}
+			});
+		});
+
+		it('minContains, maxContains', function () {
+			expect(p(`
+			[number]
+			.minContains(1)
+			.maxContains(10)
+			`)).to.eql({
+				type: 'array',
+				items: {type: "number"},
+				minContains: 1,
+				maxContains: 10,
+			});
+		});
+
+		it('minItems, maxItems', function () {
+			expect(p(`
+			[number]
+			.minItems(1)
+			.maxItems(10)
+			`)).to.eql({
+				type: 'array',
+				items: {type: "number"},
+				minItems: 1,
+				maxItems: 10,
+			});
+		});
+
+		it('unevaluatedItems', function () {
+			expect(p(`
+			[number]
+			.unevaluatedItems(true)
+			`)).to.eql({
+				type: 'array',
+				items: {type: "number"},
+				unevaluatedItems: true,
+			});
+		});
+
+		it('uniqueItems', function () {
+			expect(p(`
+			[number]
+			.uniqueItems(true)
+			`)).to.eql({
+				type: 'array',
+				items: {type: "number"},
+				uniqueItems: true,
+			});
+		});
+	});
+
+	describe('number', function () {
+		it('minimum, maximum', function () {
+			expect(p(`
+			number
+			.minimum(1)
+			.maximum(10)
+			`)).to.eql({
+				type: 'number',
+				minimum: 1,
+				maximum: 10,
+			});
+		});
+
+		it('exclusiveMinimum, exclusiveMaximum', function () {
+			expect(p(`
+			number
+			.exclusiveMinimum(1)
+			.exclusiveMaximum(10)
+			`)).to.eql({
+				type: 'number',
+				exclusiveMinimum: 1,
+				exclusiveMaximum: 10,
+			});
+		});
+
+		it('multipleOf', function () {
+			expect(p(`
+			number
+			.multipleOf(2)
+			`)).to.eql({
+				type: 'number',
+				multipleOf: 2,
+			});
+		});
+	});
+
+	describe('string', function () {
+		it('minLength, maxLength', function () {
+			expect(p(`
+			string
+			.minLength(1)
+			.maxLength(10)
+			`)).to.eql({
+				type: 'string',
+				minLength: 1,
+				maxLength: 10,
+			});
+		});
+
+		it('format', function () {
+			expect(p(`
+			string
+			.format("date")
+			`)).to.eql({
+				type: 'string',
+				format: "date",
+			});
+		});
+
+		it('pattern', function () {
+			expect(p(`
+			string
+			.pattern("^d+$")
+			`)).to.eql({
+				type: 'string',
+				pattern: "^d+$",
+			});
+		});
 	});
 });

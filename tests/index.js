@@ -11,16 +11,169 @@ describe('config file', function () {
 	});
 
 	it(`should generate express middleware`, function (done) {
+		const {application, request, response} = require('express');
+
 		var path = cwd('output', 'cliExpress.js');
 
 		remove(path);
 
 		exec(`node cli.js -c ${cwd('apidoc.json')} -e ${path}`)
-			.then(function () {
+			.then(async function () {
 				isExist(path);
 
-				var validator = require(path);
-				expect(validator.endpoints).to.have.lengthOf(4);
+				var test = require(path);
+				expect(test.endpoints).to.have.lengthOf(4);
+
+				const runTest = function (reqData, code, resBody) {
+					return new Promise(function (done) {
+						const app = Object.assign(Object.create(application), {
+							settings: {}
+						});
+
+						const req = Object.assign(Object.create(request), reqData, {app});
+
+						const res = Object.assign(Object.create(response), {
+							app,
+							json: done,
+						});
+
+						const next = function (err) {
+							if (err) {
+								done(err);
+								return;
+							}
+
+							res.status(code);
+							res.json(resBody);
+						};
+
+						try {
+							test(req, res, next);
+						}
+						catch (error) {
+							done(error);
+						}
+					});
+				};
+
+				var req = {
+					method: 'POST',
+					url: '/some/path/100',
+					query: {
+						r: 1
+					},
+					params: {
+						id: '100'
+					},
+					body: {},
+				};
+
+				var data = await runTest(req, 200, {
+					data: {id: '1'}
+				});
+
+				expect(req.params.id).to.equal(100);
+
+				expect(data).to.eql({
+					data: {id: 1}
+				});
+
+				req.params.id = 'a';
+
+				data = await runTest(req, 200, {
+					data: {id: '1'}
+				});
+
+				expect(data).to.be.instanceof(test.RequestValidationError);
+
+				expect(data).to.shallowDeepEqual({
+					message: 'Invalid URL params',
+					property: 'params',
+					errors: [{
+						dataPath: "/id",
+						message: "should be number",
+					}]
+				});
+
+				req.params.id = '100';
+
+				data = await runTest(req, 200, {
+					data: {id: 'a'}
+				});
+
+				expect(data).to.be.instanceof(test.ResponseValidationError);
+
+				expect(data).to.shallowDeepEqual({
+					message: 'Invalid response body',
+					errors: [{
+						dataPath: "/data/id",
+						message: "should be number",
+					}]
+				});
+
+				data = await runTest(req, 210, {
+					data: '21x'
+				});
+
+				expect(data).to.eql({
+					data: '21x'
+				});
+
+				data = await runTest(req, 210, {
+					data: '21y'
+				});
+
+				expect(data).to.shallowDeepEqual({
+					message: 'Invalid response body',
+					errors: [{
+						"dataPath": "/data",
+						"message": "should be equal to constant"
+					}]
+				});
+
+				data = await runTest(req, 350, {
+					data: {id: 1}
+				});
+
+				expect(data).to.eql({
+					data: {id: 1}
+				});
+
+				data = await runTest(req, 350, {
+					data: {id: 0}
+				});
+
+				expect(data).to.shallowDeepEqual({
+					message: 'Invalid response body',
+					errors: [{
+						"dataPath": "/data/id",
+						"message": "should be >= 1"
+					}]
+				});
+
+				var codes = [404, 500, 505];
+
+				for (let i = 0; i < codes.length; i++) {
+					data = await runTest(req, codes[i], {
+						data: {test: -1}
+					});
+
+					expect(data).to.eql({
+						data: {test: -1}
+					});
+
+					data = await runTest(req, codes[i], {
+						data: {test: 'a'}
+					});
+
+					expect(data).to.shallowDeepEqual({
+						message: 'Invalid response body',
+						errors: [{
+							"dataPath": "/data/test",
+							"message": "should be number"
+						}],
+					});
+				}
 			})
 			.then(done, done);
 	});
