@@ -766,6 +766,50 @@ describe('parseSchema', function () {
 			}
 		});
 	});
+
+	it('Schema methods', function () {
+		parseSchema(`User = {id: number, 'name?': string, [age]: number}`);
+		parseSchema(`Test1 = User.pick('id', 'name')`);
+		parseSchema(`Test2 = User.remove('id', 'name')`);
+		parseSchema(`Test3 = User.add({token: uuid})`);
+		parseSchema(`Test4 = User.required('name')`);
+		parseSchema(`Test5 = User.notRequired('id')`);
+		parseSchema(`Test6 = Test5.set('required', User.get('required'))`);
+		parseSchema(`Test7 = User.prop('id')`);
+		parseSchema(`Test8 = User.set('additionalProperties', true)`);
+		parseSchema(`Test9 = {uuid: User.prop('name')}`);
+		parseSchema(`Test10 = /d+/.set('minLength', 10)`);
+		parseSchema(`Test11 = {type: 'string'}.set('minLength', 10)`);
+		parseSchema(`Total = User
+			.pick('id', 'name')
+			.remove('id')
+			.add({token: uuid})
+			.required('name')
+			.notRequired('token')
+			.set('additionalProperties', true)
+		`);
+		
+		var c = parseSchema.cache;
+
+		parseSchema.cache = getDefaultSchemas();
+
+		var g = generateAjvSchema;
+		var p = parseSchema;
+
+		expect(g(c.Test1)).to.eql(p(`Test1 = {id: number, 'name?': string}`));
+		expect(g(c.Test2)).to.eql(p(`Test2 = {[age]: number}`));
+		expect(g(c.Test3)).to.eql(p(`Test3 = {id: number, 'name?': string, [age]: number, token: uuid}`));
+		expect(g(c.Test4)).to.eql(p(`Test4 = {id: number, name: string, [age]: number}`));
+		expect(g(c.Test5)).to.eql(p(`Test5 = {[id]: number, [name]: string, [age]: number}`));
+		expect(g(c.Test6)).to.eql(p(`Test6 = {id: number, [name]: string, [age]: number}`));
+		expect(g(c.Test7)).to.eql(p(`Test7 = number`));
+		expect(g(c.Test8)).to.eql(p(`Test8 = {id: number, [name]: string, [age]: number, ...{type: 'object', additionalProperties: true}}`));
+		expect(g(c.Test9)).to.eql(p(`Test9 = {uuid: string}`));
+		expect(g(c.Test10)).to.eql(p(`Test10 = {type: 'string', pattern: "d+", minLength: 10}`));
+		expect(g(c.Test11)).to.eql(p(`Test11 = {type: 'string', 'minLength': 10}`));
+		expect(g(c.Total)).to.eql(p(`Total = {name: string, [token]: uuid, ...{type: 'object', additionalProperties: true}}`));
+
+	});
 });
 
 describe('annotations', function () {

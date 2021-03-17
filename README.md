@@ -27,6 +27,15 @@
    * [anyOf schema](#anyof-schema)
    * [allOf schema](#allof-schema)
    * [Extend schema](#extend-schema)
+   * [Schema methods](#schema-methods)
+     * [prop](#prop)
+     * [props](#props)
+     * [merge](#merge)
+     * [remove](#remove)
+     * [required](#required)
+     * [notRequired](#notrequired)
+     * [set](#set)
+     * [get](#get)
  * [object-method-call](#object-method-call)
 
 
@@ -703,6 +712,174 @@ schema = {
     type: "string",
     maxLength: 20,
 }
+```
+
+## Schema methods
+
+Another great way to extend a schema is to use it methods.
+
+Example schema
+```js
+/**
+ * @schema User = {
+ *   id: number,
+ *   [name]: string,
+ * }
+ */
+```
+
+### prop
+
+Returns schema of property.
+
+Here good way to reuse schema props, even if they super simple like `number`
+
+```js
+/**
+ * @params {
+ *   id: User.prop('id')
+ * }
+ */
+
+/**
+ * @params {
+ *   id: number
+ * }
+ */
+```
+
+### props
+
+Alias: `pick`
+
+Return "object" schema of props
+
+```js
+/**
+ * @params User.props('id', 'name')
+ */
+
+/**
+ * @params {
+ *   id: number,
+ *   [name]: string,
+ * }
+ */
+```
+
+### merge
+
+Aliases: `add`, `assign`, `extend`
+
+Returns extended schema
+
+```js
+/**
+ * @params User.merge({token: uuid})
+ */
+
+/**
+ * @params {
+ *   id: number,
+ *   [name]: string,
+ *   token: uuid,
+ * }
+ */
+```
+
+### remove
+
+Alias: `omit`
+
+Returns schema without props
+
+```js
+/**
+ * @body User.remove('id')
+ */
+
+/**
+ * @body {
+ *   [name]: string
+ * }
+ */
+```
+
+### required
+
+Returns same schema, only with required props. Can take many props names.
+
+```js
+/**
+ * @params User.required('name')
+ */
+
+/**
+ * @params {
+ *   id: number,
+ *   name: string,
+ * }
+ */
+```
+
+### notRequired
+
+Alias: `optional`
+
+Make fields optional
+
+```js
+/**
+ * @params User.notRequired('id')
+ */
+
+/**
+ * @params {
+ *   [id]: number,
+ *   [name]: string,
+ * }
+ */
+```
+
+### set
+
+Set schema option like `additionalProperties` or `minLength`
+
+```js
+/**
+ * @params User.set('additionalProperties', true)
+ * @query {search: string.set('minLength', 3)}
+ */
+
+/**
+ * @params {
+ *   type: "object"
+ *   additionalProperties: true,
+ *   required: ['id'],
+ *   properties: {
+ *     id: {type: "number"},
+ *     name: {type: "string"},
+ *   },
+ * }
+ * @query {
+ *   search: {
+ *     type: "string",
+ *     minLength: 3,
+ *   }
+ * }
+ */
+```
+
+### get
+
+Return schema option value like `minLength`
+
+```js
+/**
+ * @query {
+ *   search: string.set('minLength', User.prop('name').get('minLength'))
+ * }
+ */
 ```
 
 ## object-method-call
