@@ -36,6 +36,8 @@
      * [notRequired](#notrequired)
      * [set](#set)
      * [get](#get)
+   * [Schema options methods](#schema-options-methods)
+   * [Object schema inline options](#object-schema-inline-options)
  * [object-method-call](#object-method-call)
 
 
@@ -878,6 +880,33 @@ Return schema option value like `minLength`
 /**
  * @query {
  *   search: string.set('minLength', User.prop('name').get('minLength'))
+ * }
+ */
+```
+
+## Schema options methods
+
+All [schemas options](https://github.com/ajv-validator/ajv/blob/master/docs/json-schema.md#keywords-for-numbers) are duplicated as methods
+```js
+/**
+ * @query {
+ *   id: number.minimum(1),
+ *   search: string.minLength(3).maxLength(20),
+ * }
+ * @body User.additionalProperties(true).maxProperties(10)
+ */
+```
+
+## Object schema inline options
+
+All [object options](https://github.com/ajv-validator/ajv/blob/master/docs/json-schema.md#keywords-for-objects) can be specified inline with properties with `$` sign at the beginning of option name
+```js
+/**
+ * @body {
+ *   id: number,
+ *   
+ *   $additionalProperties: true,
+ *   $maxProperties: 10,
  * }
  */
 ```

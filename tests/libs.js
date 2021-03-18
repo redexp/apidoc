@@ -812,6 +812,40 @@ describe('parseSchema', function () {
 		expect(g(c.Total)).to.eql(p(`Total = {name: string, [token]: uuid, ...{type: 'object', additionalProperties: true}}`));
 
 	});
+
+	it('Object schema $ props', function () {
+		var p = parseSchema;
+		expect(p(`{id: number, $additionalProperties: true, $propertyNames: uuid, token: string}`)).to.eql({
+			type: 'object',
+			additionalProperties: true,
+			propertyNames: {
+				type: 'string',
+				format: 'uuid',
+			},
+			required: ['id', 'token'],
+			properties: {
+				id: {type: 'number'},
+				token: {type: 'string'},
+			}
+		});
+		expect(p(`{id: number, name: string, $required: [], token: string}`)).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			required: ['token'],
+			properties: {
+				id: {type: 'number'},
+				name: {type: 'string'},
+				token: {type: 'string'},
+			}
+		});
+		expect(p(`{$maxProperties: 5}`)).to.eql({
+			type: 'object',
+			additionalProperties: false,
+			required: [],
+			properties: {},
+			maxProperties: 5,
+		});
+	});
 });
 
 describe('annotations', function () {
