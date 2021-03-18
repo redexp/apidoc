@@ -441,14 +441,14 @@ schema = {
 Here example of array where all items should be validated with one schema
 ```js
 schema = {
-	list: [number]
+    list: [number]
 }
 ```
 converted to
 ```js
 schema = {
-	list: {
-		type: 'array',
+    list: {
+        type: 'array',
         items: {type: 'number'}
     }
 }
@@ -457,126 +457,126 @@ schema = {
 Here example how we can validate items through many schemas
 ```js
 schema = {
-	list: [number || string || {id: number}]
+    list: [number || string || {id: number}]
 }
 ```
 converted to
 ```js
 schema = {
-	list: {
-		type: 'array',
-		items: {
-			anyOf: [
+    list: {
+        type: 'array',
+        items: {
+            anyOf: [
                 {type: 'number'},
                 {type: 'string'},
                 {
-                	type: 'object',
+                    type: 'object',
                     additionalProperties: false,
                     required: ['id'],
                     properties: {
-                		id: {type: 'number'}
+                        id: {type: 'number'}
                     }
                 },
             ]
         }
-	}
+    }
 }
 ```
 
 Here index relative validation
 ```js
 schema = {
-	list: [number, string]
+    list: [number, string]
 }
 ```
 Which means that first element must be a number and second a string. Rest elements validation depends on array options like `additionalItems`. 
 In this example valid will be: `[1]`, `[1, "abc"]`, `[1, "abc", 2]`, `[]`. Not valid: `["abc", 1]`, `["abc"]` 
 ```js
 schema = {
-	list: {
-		type: 'array',
-		items: [
-			{type: 'number'},
-			{type: 'string'}
+    list: {
+        type: 'array',
+        items: [
+            {type: 'number'},
+            {type: 'string'}
         ]
-	}
+    }
 }
 ```
 You can add any array option with it methods
 ```js
 schema = {
-	list: [number, string].additionalItems(false)
+    list: [number, string].additionalItems(false)
 }
 ```
 converted to
 ```js
 schema = {
-	list: {
-		type: 'array',
-		items: [
-			{type: 'number'},
-			{type: 'string'}
+    list: {
+        type: 'array',
+        items: [
+            {type: 'number'},
+            {type: 'string'}
         ],
-		additionalItems: false,
-	}
+        additionalItems: false,
+    }
 }
 ```
 If you need one index relative element validation than you can use `items` method like
 ```js
 schema = {
-	firstNumber: [].items([number]),
+    firstNumber: [].items([number]),
     firstString: array.items([string]),
 }
 ```
 converted to
 ```js
 schema = {
-	firstNumber: {
-		type: 'array',
+    firstNumber: {
+        type: 'array',
         items: [{type: 'number'}]
     },
     firstString: {
-		type: 'array',
-		items: [{type: 'string'}]
-	},
+        type: 'array',
+        items: [{type: 'string'}]
+    },
 }
 ```
 
 This example means that at least one element in an array must be valid
 ```js
 schema = {
-	list: [...string],
+    list: [...string],
     listOr: [...(string || boolean)]
 }
 ```
 converted to
 ```js
 schema = {
-	list: {
-		type: 'array',
-		contains: {type: 'string'},
+    list: {
+        type: 'array',
+        contains: {type: 'string'},
     },
-	listOr: {
-		type: 'array',
-		contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
+    listOr: {
+        type: 'array',
+        contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
     },
 }
 ```
 Combination of index relative validation and `contains`
 ```js
 schema = {
-	list: [number, ...(string || boolean)]
+    list: [number, ...(string || boolean)]
 }
 ```
 converted to
 ```js
 schema = {
-	list: {
-		type: 'array',
+    list: {
+        type: 'array',
         items: [
             {type: 'number'}
         ],
-		contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
+        contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
     }
 }
 ```
@@ -842,12 +842,12 @@ schema = {
 You extend even non object validators
 ```js
 phone = {
-	type: "string",
+    type: "string",
     pattern: "^\\d+$"
 }
 
 schema = {
-	...phone,
+    ...phone,
     type: "string",
     maxLength: 20,
 }
@@ -1139,7 +1139,7 @@ Api.request = function ({
    endpoint /* object from Api.endpoints */, 
    context /* Api class instance */
 }) {
-	return sendRequestReturnPromise(context.baseUrl + url);
+    return sendRequestReturnPromise(context.baseUrl + url);
 }
 // --
 
@@ -1179,7 +1179,7 @@ app.use(function (err, req, res, next) {
        // @see Validation errors handling
     }
     else {
-    	next(err);
+        next(err);
     }
     
     // or use base class
@@ -1213,7 +1213,7 @@ function sendMessage(path, data) {
     }
     
     return ajax(path, data).then(function (result) {
-    	if (validateResponse) {
+        if (validateResponse) {
            try {
               validateResponse(result);
            }
@@ -1221,8 +1221,8 @@ function sendMessage(path, data) {
               // @see ResponseValidationError
            }
         }
-    	
-    	return result;
+        
+        return result;
     });
 }
 ```
