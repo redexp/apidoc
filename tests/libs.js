@@ -942,6 +942,17 @@ describe('parseSchema', function () {
 		expect(p(`[]`)).to.eql({
 			type: 'array',
 		});
+		expect(p(`array.items([number])`)).to.eql({
+			type: 'array',
+			items: [{type: 'number'}],
+		});
+		expect(p(`array.maxItems(5)`)).to.eql({
+			type: 'array',
+			maxItems: 5,
+		});
+		expect(p(`array`)).to.eql({
+			type: 'array',
+		});
 	});
 });
 

@@ -521,6 +521,26 @@ schema = {
 	}
 }
 ```
+If you need one index relative element validation than you can use `items` method like
+```js
+schema = {
+	firstNumber: [].items([number]),
+    firstString: array.items([string]),
+}
+```
+converted to
+```js
+schema = {
+	firstNumber: {
+		type: 'array',
+        items: [{type: 'number'}]
+    },
+    firstString: {
+		type: 'array',
+		items: [{type: 'string'}]
+	},
+}
+```
 
 This example means that at least one element in an array must be valid
 ```js
@@ -542,7 +562,7 @@ schema = {
     },
 }
 ```
-And combination of last two examples
+Combination of index relative validation and `contains`
 ```js
 schema = {
 	list: [number, ...(string || boolean)]
