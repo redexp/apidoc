@@ -190,6 +190,8 @@ describe('parseSchema', function () {
 				listObj: [{
 					type: string
 				}],
+				listOr: [number || string],
+				listTwo: [number, string],
 				enumInt: 1 || 2 || 3,
 				enumStr: "user" || 'account' || "item",
 				any_of: number || string || int || null,
@@ -200,7 +202,7 @@ describe('parseSchema', function () {
 		expect(res).to.eql({
 			"type": "object",
 			"additionalProperties": false,
-			"required": ["id", "name", "date", "regex", "listInt", "listStr", "listObj", "enumInt", "enumStr", "any_of", "all_of"],
+			"required": ["id", "name", "date", "regex", "listInt", "listStr", "listObj", "listOr", "listTwo", "enumInt", "enumStr", "any_of", "all_of"],
 			"properties": {
 				id: {
 					"type": "number"
@@ -243,6 +245,22 @@ describe('parseSchema', function () {
 							}
 						}
 					}
+				},
+				listOr: {
+					type: 'array',
+					items: {
+						anyOf: [
+							{type: 'number'},
+							{type: 'string'},
+						]
+					}
+				},
+				listTwo: {
+					type: 'array',
+					items: [
+						{type: 'number'},
+						{type: 'string'},
+					]
 				},
 				enumInt: {
 					"type": "number",
@@ -844,6 +862,85 @@ describe('parseSchema', function () {
 			required: [],
 			properties: {},
 			maxProperties: 5,
+		});
+	});
+
+	it('array contains syntax', function () {
+		var p = parseSchema;
+		expect(p(`[number]`)).to.eql({
+			type: 'array',
+			items: {type: 'number'},
+		});
+		expect(p(`[number, string]`)).to.eql({
+			type: 'array',
+			items: [
+				{type: 'number'},
+				{type: 'string'},
+			],
+		});
+		expect(p(`[...number]`)).to.eql({
+			type: 'array',
+			contains: {type: 'number'},
+		});
+		expect(p(`[number, ...string]`)).to.eql({
+			type: 'array',
+			items: [
+				{type: 'number'}
+			],
+			contains: {type: 'string'},
+		});
+		expect(p(`[number, number, ...string]`)).to.eql({
+			type: 'array',
+			items: [
+				{type: 'number'},
+				{type: 'number'},
+			],
+			contains: {type: 'string'},
+		});
+		expect(p(`[number, number, ...(string || boolean)]`)).to.eql({
+			type: 'array',
+			items: [
+				{type: 'number'},
+				{type: 'number'},
+			],
+			contains: {
+				anyOf: [
+					{type: 'string'},
+					{type: 'boolean'},
+				]
+			},
+		});
+		expect(p(`[number, number, ...(string || boolean)].minContains(1).maxContains(5)`)).to.eql({
+			type: 'array',
+			items: [
+				{type: 'number'},
+				{type: 'number'},
+			],
+			contains: {
+				anyOf: [
+					{type: 'string'},
+					{type: 'boolean'},
+				]
+			},
+			minContains: 1,
+			maxContains: 5,
+		});
+		expect(p(`[...(string || boolean)].items(number)`)).to.eql({
+			type: 'array',
+			items: {type: 'number'},
+			contains: {
+				anyOf: [
+					{type: 'string'},
+					{type: 'boolean'},
+				]
+			}
+		});
+		expect(p(`[].items([number])`)).to.eql({
+			type: 'array',
+			items: [{type: 'number'}],
+		});
+		expect(p(`[]`)).to.eql({
+			type: 'array',
 		});
 	});
 });

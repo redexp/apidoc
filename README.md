@@ -38,6 +38,7 @@
      * [get](#get)
    * [Schema options methods](#schema-options-methods)
    * [Object schema inline options](#object-schema-inline-options)
+   * [Array syntax](#array-syntax)
  * [object-method-call](#object-method-call)
 
 
@@ -338,6 +339,7 @@ schema = {
         },
         list: {
             type: "array",
+            items: {type: "number"}
             // extra fields for array: maxItems, minItems, uniqueItems, items, additionalItems, contains
         },
         user: {
@@ -359,17 +361,7 @@ schema = {
     id: number,
     [name]: string,
     enabled: boolean,
-    listOfObjects: [{
-        id: number,
-        type: string,
-    }],
-
-    listOfNumbers: [{
-        type: "number"
-    }],
-
-    // which means list is array of numbers
-
+    list: [number],
     user: {
         id: number,
         type: string,
@@ -378,7 +370,7 @@ schema = {
 }
 ```
 
-So, if any object in a schema (including root) has field `type` with one of the string values 
+So, if any object in a schema (including root) has field `type` with the string value like 
 `"number"`, `"integer"`, `"string"`, `"boolean"`, `"array"`, `"object"` or `"null"` than it means this object is validator.
 In any other cases this object will be converted to `"object"` validator. Example
 ```javascript
@@ -440,6 +432,131 @@ schema = {
         parent: {
             type: "object",
         },
+    }
+}
+```
+
+### Array syntax
+
+Here example of array where all items should be validated with one schema
+```js
+schema = {
+	list: [number]
+}
+```
+converted to
+```js
+schema = {
+	list: {
+		type: 'array',
+        items: {type: 'number'}
+    }
+}
+```
+
+Here example how we can validate items through many schemas
+```js
+schema = {
+	list: [number || string || {id: number}]
+}
+```
+converted to
+```js
+schema = {
+	list: {
+		type: 'array',
+		items: {
+			anyOf: [
+                {type: 'number'},
+                {type: 'string'},
+                {
+                	type: 'object',
+                    additionalProperties: false,
+                    required: ['id'],
+                    properties: {
+                		id: {type: 'number'}
+                    }
+                },
+            ]
+        }
+	}
+}
+```
+
+Here index relative validation
+```js
+schema = {
+	list: [number, string]
+}
+```
+Which means that first element must be a number and second a string. Rest elements validation depends on array options like `additionalItems`. 
+In this example valid will be: `[1]`, `[1, "abc"]`, `[1, "abc", 2]`, `[]`. Not valid: `["abc", 1]`, `["abc"]` 
+```js
+schema = {
+	list: {
+		type: 'array',
+		items: [
+			{type: 'number'},
+			{type: 'string'}
+        ]
+	}
+}
+```
+You can add any array option with it methods
+```js
+schema = {
+	list: [number, string].additionalItems(false)
+}
+```
+converted to
+```js
+schema = {
+	list: {
+		type: 'array',
+		items: [
+			{type: 'number'},
+			{type: 'string'}
+        ],
+		additionalItems: false,
+	}
+}
+```
+
+This example means that at least one element in an array must be valid
+```js
+schema = {
+	list: [...string],
+    listOr: [...(string || boolean)]
+}
+```
+converted to
+```js
+schema = {
+	list: {
+		type: 'array',
+		contains: {type: 'string'},
+    },
+	listOr: {
+		type: 'array',
+		contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
+    },
+}
+```
+And combination of last two examples
+```js
+schema = {
+	list: [number, ...(string || boolean)]
+}
+```
+converted to
+```js
+schema = {
+	list: {
+		type: 'array',
+        items: [
+            {type: 'number'}
+        ],
+		contains: {anyOf: [{type: 'string'}, {type: 'boolean'}]},
     }
 }
 ```
