@@ -3,11 +3,11 @@
 const {program} = require('commander');
 const fs = require('fs');
 const {resolve, dirname} = require('path');
-const {getDefaultSchemas} = require('./lib/schemas');
+const {generateAjvSchema} = require('adv-parser');
+const defaultSchemas = require('adv-parser/schemas');
+const {getProp} = require('adv-parser/lib/object');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
-const {generateAjvSchema} = require('./lib/parseSchema');
-const {getProp} = require('./lib/object');
 const generateApiClient = require('./lib/generate/apiClient');
 const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
 const generateOpenApi = require('./lib/generate/openApi');
@@ -73,8 +73,6 @@ if (config.exclude) {
 if (config.namespace && !Array.isArray(config.namespace)) {
 	config.namespace = config.namespace.split(',').map(v => v.trim()).filter(v => !!v);
 }
-
-var defaultSchemas = getDefaultSchemas();
 
 if (typeof config.extraProps === 'boolean') {
 	getProp(defaultSchemas.object, 'additionalProperties').value.value = config.extraProps;
