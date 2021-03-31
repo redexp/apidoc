@@ -26,7 +26,6 @@
 ## Usage
 
  * [cli](#cli)
- * [cli](#cli)
  * [API client](#api-client)
  * [Express middleware](#express-middleware)
  * [Universal middleware](#universal-middleware)
@@ -341,11 +340,13 @@ Parameters:
   -b, --base-url <url> default Api.baseUrl
   -e, --express <path> generate express middleware validator
   -o, --open-api <path> generate Swagger OpenAPI v3 json
+  -j, --json <path> generate endpoints json
   -n, --namespace <namespace> generate validators only with this namespace or comma separated namespaces
   -M, --default-method <method> default @url METHOD
   -C, --default-code <code> default @response CODE
   -T, --jsdoc-typedefs <boolean> generate typedef, default true
   -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
+  -I, --include-jsdoc <boolean> include to endpoints jsdoc annotations, default false
   -P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
 ```
 
@@ -523,9 +524,11 @@ if (err instanceof context.ValidationError) {
  * `jsdocTypedefs` generate `@typedef` for each named schema. Default is `true`
  * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
  * `apiClient` same as `--api-client <path>`
+ * `json` same as `--json <path>`
  * `express` same as `--express <path>`
  * `openApi` same as `--open-api <path>`
  * `namespace` same as `--namespace <namespace>`
+ * `includeJsdoc` same as `--include-jsdoc <boolean>`
  * `extraProps` same as `--extra-props <boolean>`
 
 All paths are relative to config file location.

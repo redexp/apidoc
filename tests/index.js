@@ -353,6 +353,21 @@ describe('config file', function () {
 			})
 			.then(done, done);
 	});
+
+	it('should generate endpoints with includeJsdoc', function (done) {
+		var path = cwd('output', 'jsdoc.json');
+
+		exec(`node cli.js -c ${cwd('includeJsdoc.json')} -j ${path}`)
+			.then(function () {
+				isExist(path);
+
+				var schema1 = JSON.parse(fs.readFileSync(path).toString());
+				var schema2 = JSON.parse(fs.readFileSync(cwd('static', 'jsdoc.json')).toString());
+
+				expect(schema1).to.eql(schema2);
+			})
+			.then(done, done);
+	});
 });
 
 function exec(code) {

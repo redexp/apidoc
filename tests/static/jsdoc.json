@@ -1,0 +1,27 @@
+[
+  {
+    "namespace": "default",
+    "url": {
+      "method": "GET",
+      "path": "/test"
+    },
+    "body": {
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "file": "/home/sergii/Projects/apidoc/tests/jsDoc/index.js",
+    "line": 1,
+    "function": "",
+    "name": "test",
+    "returns": "{string}"
+  }
+]

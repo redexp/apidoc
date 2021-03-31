@@ -35,7 +35,7 @@ var Controller = {
 	 * @url /controller/action
 	 * @response {success: boolean} // some comment !@#$%^&*()
 	 * @call controller.action()
-	 * @returns string
+	 * @returns {string}
 	 */
 	action: function () {
 		return '';
