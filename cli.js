@@ -93,7 +93,7 @@ if (typeof config.extraProps === 'boolean') {
 
 var cache = {...defaultSchemas};
 
-filesToEndpoints(files, {...config, cache})
+filesToEndpoints(files, {...config, schemas: cache})
 	.then(function (endpoints) {
 		if (config.namespace) {
 			let namespaces = config.namespace.reduce(function (hash, name) {
