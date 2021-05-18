@@ -25,20 +25,20 @@
   },
   "homepage": "https://github.com/redexp/apidoc#readme",
   "dependencies": {
-    "@babel/parser": "^7.12.11",
-    "@babel/types": "^7.12.12",
-    "adv-parser": "^1.0.0",
+    "@babel/parser": "^7.14.3",
+    "@babel/types": "^7.14.2",
+    "adv-parser": "^1.1.1",
     "commander": "^5.1.0",
-    "glob": "^7.1.6",
+    "glob": "^7.1.7",
     "mkdirp": "^1.0.4"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "ajv": "^7.0.2",
+    "ajv-formats": "^1.5.1",
+    "chai": "^4.3.4",
     "chai-shallow-deep-equal": "^1.4.6",
     "express": "^4.17.1",
     "mocha": "^7.2.0",
-    "ajv": "^7.0.2",
-    "ajv-formats": "^1.5.1",
     "path-to-regexp": "^6.2.0"
   },
   "peerDependencies": {
