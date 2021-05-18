@@ -24,7 +24,7 @@
  *   data: '21x'
  * }
  * @response 300 - 400 {data: {id: id}}
- * @response 4xx || 500 || 501 - 600 {data: {test: negative}}
+ * @response 4xx || 500 || 501 - 599 {data: {test: negative}}
  * @call app.test1()
  */
 app.post('/some/path');

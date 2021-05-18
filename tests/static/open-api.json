@@ -169,7 +169,7 @@
               }
             }
           },
-          "501-600": {
+          "501-599": {
             "content": {
               "application/json": {
                 "schema": {
