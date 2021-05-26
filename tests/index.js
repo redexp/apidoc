@@ -333,6 +333,20 @@ describe('config file', function () {
 				result = await client.app.test1({id: 100}, {r: 200, q: 'test'}, {any: 'value'});
 				expect(result).to.eql({data: '21x'});
 				expect(n).to.eql(2);
+
+				Api.request = function ({url}) {
+					n++;
+					expect(url).to.eql('/v1/controller/action');
+
+					return {
+						statusCode: 200,
+						body: {success: true},
+					};
+				};
+
+				result = await client.controller.action();
+				expect(result).to.eql({success: true});
+				expect(n).to.eql(3);
 			})
 			.then(done, done);
 	});

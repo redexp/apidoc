@@ -118,7 +118,7 @@ filesToEndpoints(files, {...config, schemas: cache})
 
 		if (config.apiClient) {
 			promises.push(
-				generateApiClient(endpoints.filter(e => !!e.call), config.apiClient, {
+				generateApiClient(endpoints, config.apiClient, {
 					baseUrl: config.baseUrl,
 					schemas,
 					jsdocTypedefs: config.jsdocTypedefs,

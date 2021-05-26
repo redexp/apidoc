@@ -5,6 +5,7 @@
 ## Annotations
 
  * [@url](#url)
+ * [@baseUrl](#baseurl)
  * [@params](#params)
  * [@query](#query)
  * [@body](#body)
@@ -45,6 +46,24 @@
  * @url POST /path/:param
  */
 ```
+
+## @baseUrl
+
+```
+@baseurl path
+```
+
+```javascript
+/**
+ * @baseUrl /v1
+ */
+
+/**
+ * @url /users
+ */
+```
+
+Final url will be `/v1/users` 
 
 ## @params
 

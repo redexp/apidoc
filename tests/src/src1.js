@@ -47,3 +47,8 @@ var Controller = {
  * @response 2xx [{id: id, name: string}]
  * @call getUsers()
  */
+
+/**
+ * @ns controller
+ * @baseUrl /v1
+ */
