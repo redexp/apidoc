@@ -268,6 +268,15 @@ describe('annotations', function () {
 			parts: ['app', 'method'],
 			params: ['id', 'test'],
 		});
+
+		data = call(() => test.action(id, user));
+
+		expect(data).to.eql({
+			code: `test.action(id, user)`,
+			method: 'test.action',
+			parts: ['test', 'action'],
+			params: ['id', 'user'],
+		});
 	});
 
 	it('response', function () {
@@ -316,6 +325,31 @@ describe('annotations', function () {
 				]
 			},
 			schema: `# Desc\n User = {id: uuid}`,
+		});
+
+		data = response.prepare(() => User = {id: uuid}, {defaultCode: `200 || 3xx || 400 - 500`});
+
+		expect(data).to.eql({
+			code: {
+				anyOf: [
+					{
+						type: 'number',
+						const: 200,
+					},
+					{
+						title: '3xx',
+						type: 'string',
+						pattern: '^3\\d\\d$',
+					},
+					{
+						title: '400 - 500',
+						type: 'number',
+						minimum: 400,
+						maximum: 500,
+					},
+				]
+			},
+			schema: `() => User = {id: uuid}`,
 		});
 	});
 });
