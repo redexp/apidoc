@@ -90,8 +90,8 @@ describe('config file', function () {
 					message: 'Invalid URL params',
 					property: 'params',
 					errors: [{
-						dataPath: "/id",
-						message: "should be number",
+						instancePath: "/id",
+						message: "must be number",
 					}]
 				});
 
@@ -106,8 +106,8 @@ describe('config file', function () {
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						dataPath: "/data/id",
-						message: "should be number",
+						instancePath: "/data/id",
+						message: "must be number",
 					}]
 				});
 
@@ -126,8 +126,8 @@ describe('config file', function () {
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						"dataPath": "/data",
-						"message": "should be equal to constant"
+						"instancePath": "/data",
+						"message": "must be equal to constant"
 					}]
 				});
 
@@ -146,8 +146,8 @@ describe('config file', function () {
 				expect(data).to.shallowDeepEqual({
 					message: 'Invalid response body',
 					errors: [{
-						"dataPath": "/data/id",
-						"message": "should be >= 1"
+						"instancePath": "/data/id",
+						"message": "must be >= 1"
 					}]
 				});
 
@@ -169,8 +169,8 @@ describe('config file', function () {
 					expect(data).to.shallowDeepEqual({
 						message: 'Invalid response body',
 						errors: [{
-							"dataPath": "/data/test",
-							"message": "should be number"
+							"instancePath": "/data/test",
+							"message": "must be number"
 						}],
 					});
 				}
@@ -377,6 +377,11 @@ describe('config file', function () {
 
 				var schema1 = JSON.parse(fs.readFileSync(path).toString());
 				var schema2 = JSON.parse(fs.readFileSync(cwd('static', 'jsdoc.json')).toString());
+
+				expect(schema1).to.have.lengthOf(1);
+				expect(schema1[0]).to.have.property('file').which.includes('tests/jsDoc/index.js');
+
+				delete schema1[0].file;
 
 				expect(schema1).to.eql(schema2);
 			})
