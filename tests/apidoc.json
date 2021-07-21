@@ -3,7 +3,8 @@
     "src/**"
   ],
   "exclude": [
-    "src/exclude"
+    "src/exclude",
+    "src/def-schemas"
   ],
   "baseUrl": "https://samples.openweathermap.org"
 }

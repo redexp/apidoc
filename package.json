@@ -1,10 +1,10 @@
 {
   "name": "api-doc-validator",
-  "version": "1.17.1",
+  "version": "1.18.0",
   "description": "api doc and validator",
   "main": "index.js",
   "scripts": {
-    "test": "rm -rf ./tests/output/* && mocha --ui bdd ./tests"
+    "test": "mocha --ui bdd ./tests"
   },
   "bin": {
     "adv": "./cli.js"
@@ -16,7 +16,9 @@
   "keywords": [
     "apidoc",
     "jsdoc",
-    "validator"
+    "validator",
+    "generator",
+    "api-client"
   ],
   "author": "Sergii Kliuchnyk <sergiikliuchnyk@gmail.com> (https://github.com/redexp)",
   "license": "MIT",
@@ -25,8 +27,8 @@
   },
   "homepage": "https://github.com/redexp/apidoc#readme",
   "dependencies": {
-    "@babel/parser": "^7.14.7",
-    "@babel/types": "^7.14.5",
+    "@babel/parser": "^7.14.8",
+    "@babel/types": "^7.14.8",
     "adv-parser": "^1.4.1",
     "commander": "^5.1.0",
     "glob": "^7.1.7",
@@ -42,8 +44,8 @@
     "path-to-regexp": "^6.2.0"
   },
   "peerDependencies": {
-    "ajv": "^7.0.2",
-    "ajv-formats": "^1.5.1",
+    "ajv": ">=7",
+    "ajv-formats": ">=1",
     "path-to-regexp": "^6.2.0"
   }
 }
