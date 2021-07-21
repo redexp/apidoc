@@ -2,7 +2,7 @@
 
 const {program} = require('commander');
 const {readFileSync, existsSync} = require('fs');
-const {resolve, dirname} = require('path');
+const {resolve, dirname, isAbsolute} = require('path');
 const {generateAjvSchema} = require('adv-parser');
 const {getProp} = require('adv-parser/lib/object');
 const getFiles = require('./lib/getFiles');
@@ -32,22 +32,22 @@ program
 
 program.parse(process.argv);
 
-const configPath = program.config;
+const CWD = process.cwd();
 
-if (configPath && !existsSync(configPath)) {
-	throw new Error(`Config file not found: ${JSON.stringify(configPath)}`);
+let configPath = program.config;
+
+if (configPath) {
+	if (!isAbsolute(configPath)) {
+		configPath = resolve(CWD, configPath);
+	}
+
+	if (!existsSync(configPath)) {
+		throw new Error(`Config file not found: ${JSON.stringify(configPath)}`);
+	}
 }
 
-const configDir = configPath ? dirname(configPath) : process.cwd();
+const configDir = configPath ? dirname(configPath) : CWD;
 const config = configPath ? JSON.parse(readFileSync(configPath, 'utf-8')) : {};
-
-resolvePath(config, program, [
-	'apiClient',
-	'express',
-	'openApi',
-	'json',
-	'defaultSchemas',
-]);
 
 defaults(config, program, [
 	'include',
@@ -60,6 +60,14 @@ defaults(config, program, [
 	'jsdocTypedefs',
 	'includeJsdoc',
 	'extraProps',
+]);
+
+resolvePath(config, program, [
+	'apiClient',
+	'express',
+	'openApi',
+	'json',
+	'defaultSchemas',
 ]);
 
 if (!config.include) {
@@ -77,8 +85,13 @@ if (typeof config.exclude === 'string' && config.exclude) {
 config.include = config.include.map(path => resolve(configDir, path));
 config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
 
-if (config.defaultSchemas && !existsSync(config.defaultSchemas)) {
-	throw new Error(`Default schemas file not found ${JSON.stringify(config.defaultSchemas)}`);
+if (config.defaultSchemas) {
+	try {
+		require.resolve(config.defaultSchemas);
+	}
+	catch (err) {
+		throw new Error(`Default schemas file not found: ${JSON.stringify(config.defaultSchemas)}`);
+	}
 }
 
 const defaultSchemas = require(config.defaultSchemas || 'adv-parser/schemas');
@@ -171,7 +184,8 @@ filesToEndpoints(files, {...config, schemas: cache})
 
 function resolvePath(target, src, props) {
 	for (let prop of props) {
-		target[prop] = src[prop] || (target[prop] && resolve(configDir, target[prop]));
+		let path = src[prop] || target[prop];
+		target[prop] = path && resolve(configDir, path);
 	}
 }
 
