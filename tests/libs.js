@@ -205,6 +205,8 @@ describe('annotations', function () {
 		const params = require('../lib/annotations/params');
 		const query = require('../lib/annotations/query');
 		const body = require('../lib/annotations/body');
+		const file = require('../lib/annotations/file');
+		const files = require('../lib/annotations/files');
 		const schema = require('../lib/annotations/schema');
 
 		var code = '{id: number}';
@@ -230,6 +232,22 @@ describe('annotations', function () {
 		data = body.prepare(code);
 		data.schema = parseSchema(data.schema);
 		data = body(data);
+
+		expect(data).to.eql({
+			schema: parseSchema(code),
+		});
+
+		data = file.prepare(code);
+		data.schema = parseSchema(data.schema);
+		data = file(data);
+
+		expect(data).to.eql({
+			schema: parseSchema(code),
+		});
+
+		data = files.prepare(code);
+		data.schema = parseSchema(data.schema);
+		data = files(data);
 
 		expect(data).to.eql({
 			schema: parseSchema(code),
