@@ -1,6 +1,6 @@
 {
   "name": "api-doc-validator",
-  "version": "1.18.2",
+  "version": "2.0.0",
   "description": "api doc and validator",
   "main": "index.js",
   "scripts": {
@@ -27,15 +27,15 @@
   },
   "homepage": "https://github.com/redexp/apidoc#readme",
   "dependencies": {
-    "@babel/parser": "^7.15.8",
-    "@babel/types": "^7.15.6",
-    "adv-parser": "^1.7.1",
+    "@babel/parser": "^7.16.4",
+    "@babel/types": "^7.16.0",
+    "adv-parser": "^2.0.2",
     "commander": "^5.1.0",
     "glob": "^7.2.0",
     "mkdirp": "^1.0.4"
   },
   "devDependencies": {
-    "ajv": "^8.6.3",
+    "ajv": "^8.8.1",
     "ajv-formats": "^2.1.1",
     "chai": "^4.3.4",
     "chai-shallow-deep-equal": "^1.4.6",

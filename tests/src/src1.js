@@ -10,7 +10,7 @@
  * }
  * @body
  * # Body desc
- * {
+ * !!{
  *   type: 'object'
  * }
  * @response 200

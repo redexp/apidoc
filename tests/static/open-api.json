@@ -305,10 +305,10 @@
                       ],
                       "properties": {
                         "lon": {
+                          "description": "some comment 1!@#$%^&*()",
                           "type": "number"
                         },
                         "lat": {
-                          "description": "some comment 1!@#$%^&*()",
                           "type": "number"
                         }
                       }

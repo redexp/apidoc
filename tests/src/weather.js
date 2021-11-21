@@ -9,13 +9,14 @@
  *         lon: number, // some comment 1!@#$%^&*()
  *         lat: number,
  *     },
+ *     // comment 3
  *     weather: [ // comment 2.1
  *     { // comment 2.2
  *         id: number,
  *         main: string,
  *         description: string,
  *         icon: string,
- *     }], // comment 3
+ *     }],
  * }
  * @call weather.get()
  */
