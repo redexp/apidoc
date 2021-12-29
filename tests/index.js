@@ -303,6 +303,7 @@ describe('config file', function () {
 		var Api = require(path);
 		expect(Api.baseUrl).to.eql('https://samples.openweathermap.org');
 		expect(Api.request).to.be.a('function');
+		expect(Api.errorHandler).to.be.a('function');
 
 		var client = new Api();
 
@@ -331,6 +332,35 @@ describe('config file', function () {
 		expect(result).to.eql({data: '21x'});
 		expect(n).to.eql(2);
 
+		var errN = 0;
+
+		Api.request = function () {
+			return {
+				statusCode: 210,
+				body: n === 0 ? {data: '21x'} : null
+			};
+		};
+
+		Api.errorHandler = function (err) {
+			errN++;
+
+			if (errN === 1) {
+				expect(err).to.be.instanceOf(Api.RequestValidationError);
+			}
+			else {
+				expect(err).to.be.instanceOf(Api.ResponseValidationError);
+			}
+		};
+
+		n = 0;
+		await client.app.test1({id: 'asd'}, {r: 200}, {any: 'value'});
+		n = 1;
+		await client.app.test1({id: 100}, {r: 200}, {any: 'value'});
+
+		expect(errN).to.eql(2);
+
+		n = 0;
+
 		Api.request = function ({url}) {
 			n++;
 			expect(url).to.eql('/v1/controller/action');
@@ -343,7 +373,9 @@ describe('config file', function () {
 
 		result = await client.controller.action();
 		expect(result).to.eql({success: true});
-		expect(n).to.eql(3);
+		expect(n).to.eql(1);
+
+
 	});
 
 	it('should generate OpenAPI', async function () {

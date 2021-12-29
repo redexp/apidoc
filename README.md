@@ -415,6 +415,11 @@ Api.request = function ({
 }) {
     return sendRequestReturnPromise(context.baseUrl + url);
 }
+Api.errorHandler = function (err) {
+	console.error(err);
+	
+	throw err;
+};
 // --
 
 await client.addUser({id: 1, name: 'Test'});
