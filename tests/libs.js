@@ -268,11 +268,13 @@ describe('annotations', function () {
 		data = schema.prepare(code);
 		data.schema = parseSchema(data.schema);
 		data = schema(data);
-
 		expect(data).to.eql({
 			name: 'Schema',
 			schema: parseSchema(code),
 		});
+
+		data = schema.prepare(() => Test.Schema = {id: number});
+		expect(data).to.have.property('name', 'Test.Schema');
 	});
 
 	it('call', function () {
