@@ -28,6 +28,11 @@ program
 .option('-R, --jsdoc-refs <boolean>', 'use references to jsdoc @typedef or replace them with reference body, default true')
 .option('-I, --include-jsdoc <boolean>', 'include to endpoints jsdoc annotations, default false')
 .option('-P, --extra-props <boolean>', 'value for ajv "object" additionalProperties, default false')
+.option('-N, --class-name <string>', 'name of generated api client class, default "Api"')
+.option('--path-to-regexp <boolean>', 'whether to add a path-to-regexp support, default true')
+.option('--request-method <boolean>', 'whether to add a Api.request method, default true')
+.option('--get-ajv-method <boolean>', 'whether to add a Api.getAjv method, default true')
+.option('--error-handler-method <boolean>', 'whether to add a Api.errorHandler method, default true')
 ;
 
 program.parse(process.argv);
@@ -60,6 +65,11 @@ defaults(config, program, [
 	'jsdocTypedefs',
 	'includeJsdoc',
 	'extraProps',
+	'className',
+	'pathToRegexp',
+	'requestMethod',
+	'getAjvMethod',
+	'errorHandlerMethod',
 ]);
 
 resolvePath(config, program, [
@@ -146,6 +156,11 @@ filesToEndpoints(files, {...config, schemas: cache})
 				schemas,
 				jsdocTypedefs: config.jsdocTypedefs,
 				jsdocRefs: config.jsdocRefs,
+				pathToRegexp: config.pathToRegexp,
+				className: config.className,
+				requestMethod: config.requestMethod,
+				getAjvMethod: config.getAjvMethod,
+				errorHandlerMethod: config.errorHandlerMethod,
 			})
 		);
 	}

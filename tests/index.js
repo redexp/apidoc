@@ -374,8 +374,6 @@ describe('config file', function () {
 		result = await client.controller.action();
 		expect(result).to.eql({success: true});
 		expect(n).to.eql(1);
-
-
 	});
 
 	it('should generate OpenAPI', async function () {
