@@ -177,6 +177,9 @@ describe('libs', function () {
 
 		jsdoc = ajvToJsDoc({anyOf: [{type: 'object'}, {type: 'number'}]});
 		expect(jsdoc).to.eql('Object|number');
+
+		jsdoc = ajvToJsDoc({anyOf: [{type: 'number'}, {type: 'number'}, {type: 'string'}]});
+		expect(jsdoc).to.eql('number|string');
 	});
 });
 
