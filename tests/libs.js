@@ -180,6 +180,25 @@ describe('libs', function () {
 
 		jsdoc = ajvToJsDoc({anyOf: [{type: 'number'}, {type: 'number'}, {type: 'string'}]});
 		expect(jsdoc).to.eql('number|string');
+
+		jsdoc = ajvToJsDoc({
+			anyOf: [
+				{type: 'number', enum: [1, 2]},
+				{type: 'number', enum: [3, 4]},
+				{type: 'string', enum: ['1', '2']},
+				{type: 'null'}
+			]
+		});
+		expect(jsdoc).to.eql('1|2|3|4|"1"|"2"|*');
+
+		jsdoc = ajvToJsDoc({
+			anyOf: [
+				{type: 'number', const: 1},
+				{type: 'string', const: '2'},
+				{type: 'null'}
+			]
+		});
+		expect(jsdoc).to.eql('1|"2"|*');
 	});
 });
 
