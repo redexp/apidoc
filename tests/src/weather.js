@@ -1,12 +1,12 @@
 /**
  * @url GET /data/:version/weather
  * @query {
- *     [q]: string,
+ *     [q]: 'a' || 'b',
  *     appid: string,
  * }
  * @response {
  *     coord: {
- *         lon: number, // some comment 1!@#$%^&*()
+ *         lon: 1 || 2, // some comment 1!@#$%^&*()
  *         lat: number,
  *     },
  *     // comment 3
