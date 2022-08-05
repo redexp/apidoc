@@ -357,6 +357,7 @@ Parameters:
   -c, --config <path> path to config json file
   -i, --include <path> path to source file
   -a, --api-client <path> generate api client
+  -d, --api-dts <path> generate api client .d.ts file
   -b, --base-url <url> default Api.baseUrl
   -e, --express <path> generate express middleware validator
   -o, --open-api <path> generate Swagger OpenAPI v3 json
@@ -365,7 +366,8 @@ Parameters:
   -M, --default-method <method> default @url METHOD
   -C, --default-code <code> default @response CODE
   -S, --default-schemas <path> path to js file with default schemas
-  -T, --jsdoc-typedefs <boolean> generate typedef, default true
+  -T, --jsdoc-methods <boolean> generate @type for methods, default true
+  -T, --jsdoc-typedefs <boolean> generate @typedef, default true
   -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
   -I, --include-jsdoc <boolean> include to endpoints jsdoc annotations, default false
   -P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
@@ -548,9 +550,11 @@ if (err instanceof context.ValidationError) {
  * `defaultMethod` overwrites default [METHOD](#method). Default is `GET`
  * `defaultCode` overwrites default [CODE](#code). Default is `200`
  * `defaultSchemas` same as `--default-schemas <path>`
+ * `jsdocMethods` generate `@type` for each method. Default is `true`
  * `jsdocTypedefs` generate `@typedef` for each named schema. Default is `true`
  * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
  * `apiClient` same as `--api-client <path>`
+ * `apiDts` same as `--api-dts <path>`
  * `json` same as `--json <path>`
  * `express` same as `--express <path>`
  * `openApi` same as `--open-api <path>`

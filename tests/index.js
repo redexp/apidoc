@@ -292,11 +292,13 @@ describe('config file', function () {
 	});
 
 	it('should generate api client', async function () {
-		var path = cwd('output', 'cliApi.js');
+		const path = cwd('output', 'cliApi.js');
+		const pathDts = cwd('output', 'cliApi.d.ts');
 
 		remove(path);
+		remove(pathDts);
 
-		await exec(`node cli.js -c ${cwd('apidoc.json')} -a ${path}`);
+		await exec(`node cli.js -c ${cwd('apidoc.json')} -a ${path} -d ${pathDts} --jsdoc-methods=false --jsdoc-typedefs=false`);
 
 		isExist(path);
 

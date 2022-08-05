@@ -16,6 +16,7 @@ program
 .option('-c, --config <path>', 'path to config json file')
 .option('-i, --include <path>', 'path to source file')
 .option('-a, --api-client <path>', 'generate api client')
+.option('-d, --api-dts <path>', 'generate api client .d.ts file')
 .option('-b, --base-url <url>', 'default Api.baseUrl')
 .option('-e, --express <path>', 'generate express middleware validator')
 .option('-o, --open-api <path>', 'generate Swagger OpenAPI v3 json')
@@ -24,9 +25,10 @@ program
 .option('-M, --default-method <method>', 'default @url METHOD')
 .option('-C, --default-code <code>', 'default @response CODE')
 .option('-S, --default-schemas <path>', 'path to js file with default schemas')
-.option('-T, --jsdoc-typedefs <boolean>', 'generate typedef, default true')
+.option('-J, --jsdoc-methods <boolean>', 'generate methods @type, default true')
+.option('-T, --jsdoc-typedefs <boolean>', 'generate @typedef, default true')
 .option('-R, --jsdoc-refs <boolean>', 'use references to jsdoc @typedef or replace them with reference body, default true')
-.option('-I, --include-jsdoc <boolean>', 'include to endpoints jsdoc annotations, default false')
+.option('-I, --include-jsdoc <boolean>', 'include to endpoints standard jsdoc annotations, default false')
 .option('-P, --extra-props <boolean>', 'value for ajv "object" additionalProperties, default false')
 .option('-N, --class-name <string>', 'name of generated api client class, default "Api"')
 .option('--path-to-regexp <boolean>', 'whether to add a path-to-regexp support, default true')
@@ -63,6 +65,7 @@ defaults(config, program, [
 	'defaultSchemas',
 	'jsdocRefs',
 	'jsdocTypedefs',
+	'jsdocMethods',
 	'includeJsdoc',
 	'extraProps',
 	'className',
@@ -74,6 +77,7 @@ defaults(config, program, [
 
 resolvePath(config, program, [
 	'apiClient',
+	'apiDts',
 	'express',
 	'openApi',
 	'json',
@@ -154,6 +158,8 @@ filesToEndpoints(files, {...config, schemas: cache})
 			generateApiClient(endpoints, config.apiClient, {
 				baseUrl: config.baseUrl,
 				schemas,
+				dtsFile: config.apiDts,
+				jsdocMethods: config.jsdocMethods,
 				jsdocTypedefs: config.jsdocTypedefs,
 				jsdocRefs: config.jsdocRefs,
 				pathToRegexp: config.pathToRegexp,
