@@ -152,8 +152,22 @@ describe('libs', function () {
 		});
 		expect(jsdoc).to.eql('{"id": number, "name"?: string, "user_id"?: ?number}');
 
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			required: ['id'],
+			properties: {
+				id: {type: 'number'},
+				name: {type: 'string'},
+				user_id: {anyOf: [{type: 'number'}, {type: 'null'}]},
+			},
+		}, {jsDocNull: false});
+		expect(jsdoc).to.eql('{"id": number, "name"?: string, "user_id"?: number|null}');
+
 		jsdoc = ajvToJsDoc({type: 'array'});
-		expect(jsdoc).to.eql('Array');
+		expect(jsdoc).to.eql('Array<*>');
+
+		jsdoc = ajvToJsDoc({type: 'array'}, {any: 'any'});
+		expect(jsdoc).to.eql('Array<any>');
 
 		jsdoc = ajvToJsDoc({type: 'array', items: {type: 'string'}});
 		expect(jsdoc).to.eql('Array<string>');

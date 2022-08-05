@@ -271,7 +271,8 @@
           "in": "query",
           "required": false,
           "schema": {
-            "type": "string"
+            "type": "string",
+            "enum": ["a", "b"]
           }
         },
         {
@@ -306,7 +307,8 @@
                       "properties": {
                         "lon": {
                           "description": "some comment 1!@#$%^&*()",
-                          "type": "number"
+                          "type": "number",
+                          "enum": [1, 2]
                         },
                         "lat": {
                           "type": "number"
