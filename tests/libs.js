@@ -193,12 +193,30 @@ describe('libs', function () {
 
 		jsdoc = ajvToJsDoc({
 			anyOf: [
-				{type: 'number', const: 1},
-				{type: 'string', const: '2'},
+				{const: 1},
+				{const: '2'},
 				{type: 'null'}
 			]
 		});
 		expect(jsdoc).to.eql('1|"2"|*');
+
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			required: [],
+			properties: {
+				test: {const: 'asd'}
+			}
+		});
+		expect(jsdoc).to.eql(`{test?: "asd"}`);
+
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			required: [],
+			properties: {
+				test: {type: 'string', enum: ['a', '2']}
+			}
+		});
+		expect(jsdoc).to.eql(`{test?: "a"|"2"}`);
 	});
 });
 

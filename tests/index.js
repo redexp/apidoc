@@ -7,7 +7,7 @@ const exec = require('util').promisify(require('child_process').exec);
 
 describe('config file', function () {
 	beforeEach(function () {
-		//return exec(`rm -rf ${cwd('output')}/*`);
+		return exec(`rm -rf ${cwd('output')}/*`);
 	});
 	
 	it(`should take --config param`, async function () {
