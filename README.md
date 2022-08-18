@@ -359,6 +359,7 @@ Parameters:
   -a, --api-client <path> generate api client
   -d, --api-dts <path> generate api client .d.ts file
   -b, --base-url <url> default Api.baseUrl
+  -p, --base-path <path> base path for @see filename comment
   -e, --express <path> generate express middleware validator
   -o, --open-api <path> generate Swagger OpenAPI v3 json
   -j, --json <path> generate endpoints json
@@ -555,6 +556,7 @@ if (err instanceof context.ValidationError) {
  * `jsdocRefs` use references to `@typedef` or replace them with reference body. Default is `true`
  * `apiClient` same as `--api-client <path>`
  * `apiDts` same as `--api-dts <path>`
+ * `basePath` same as `--base-path <path>`
  * `json` same as `--json <path>`
  * `express` same as `--express <path>`
  * `openApi` same as `--open-api <path>`

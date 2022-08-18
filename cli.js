@@ -18,6 +18,7 @@ program
 .option('-a, --api-client <path>', 'generate api client')
 .option('-d, --api-dts <path>', 'generate api client .d.ts file')
 .option('-b, --base-url <url>', 'default Api.baseUrl')
+.option('-p, --base-path <path>', 'base path for @see filename comment')
 .option('-e, --express <path>', 'generate express middleware validator')
 .option('-o, --open-api <path>', 'generate Swagger OpenAPI v3 json')
 .option('-j, --json <path>', 'generate endpoints json')
@@ -76,6 +77,7 @@ defaults(config, program, [
 ]);
 
 resolvePath(config, program, [
+	'basePath',
 	'apiClient',
 	'apiDts',
 	'express',
@@ -157,6 +159,7 @@ filesToEndpoints(files, {...config, schemas: cache})
 		promises.push(
 			generateApiClient(endpoints, config.apiClient, {
 				baseUrl: config.baseUrl,
+				basePath: config.basePath,
 				schemas,
 				dtsFile: config.apiDts,
 				jsdocMethods: config.jsdocMethods,

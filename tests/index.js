@@ -298,7 +298,7 @@ describe('config file', function () {
 		remove(path);
 		remove(pathDts);
 
-		await exec(`node cli.js -c ${cwd('apidoc.json')} -a ${path} -d ${pathDts}`);
+		await exec(`node cli.js -c ${cwd('apidoc.json')} -a ${path} -d ${pathDts} -p ${cwd('src')}`);
 
 		isExist(path);
 
