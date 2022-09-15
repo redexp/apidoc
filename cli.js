@@ -7,10 +7,6 @@ const {generateAjvSchema} = require('adv-parser');
 const {getProp} = require('adv-parser/lib/object');
 const getFiles = require('./lib/getFiles');
 const filesToEndpoints = require('./lib/filesToEndpoints');
-const generateApiClient = require('./lib/generate/apiClient');
-const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
-const generateOpenApi = require('./lib/generate/openApi');
-const generateJson = require('./lib/generate/json');
 
 program
 .option('-c, --config <path>', 'path to config json file')
@@ -156,6 +152,8 @@ filesToEndpoints(files, {...config, schemas: cache})
 	var promises = [];
 
 	if (config.apiClient) {
+		const generateApiClient = require('./lib/generate/apiClient');
+
 		promises.push(
 			generateApiClient(endpoints, config.apiClient, {
 				baseUrl: config.baseUrl,
@@ -175,6 +173,8 @@ filesToEndpoints(files, {...config, schemas: cache})
 	}
 
 	if (config.express) {
+		const generateExpressMiddleware = require('./lib/generate/expressMiddleware');
+
 		promises.push(
 			generateExpressMiddleware(endpoints, config.express, {
 				schemas,
@@ -184,12 +184,16 @@ filesToEndpoints(files, {...config, schemas: cache})
 	}
 
 	if (config.openApi) {
+		const generateOpenApi = require('./lib/generate/openApi');
+
 		promises.push(
 			generateOpenApi(endpoints.filter(e => !!e.url), config.openApi)
 		);
 	}
 
 	if (config.json) {
+		const generateJson = require('./lib/generate/json');
+
 		promises.push(
 			generateJson(endpoints.filter(e => !!e.url), config.json)
 		);
