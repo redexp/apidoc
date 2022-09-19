@@ -1,7 +1,6 @@
-let schemas = require('adv-parser/schemas');
 const toAst = require('adv-parser/lib/toAst');
 
-schemas = {...schemas};
+const schemas = {};
 
 schemas.test = toAst('!!' + JSON.stringify({
 	type: "string",

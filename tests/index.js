@@ -412,7 +412,7 @@ describe('config file', function () {
 		const source = cwd('src', 'def-schemas', 'index.js');
 		const target = cwd('output', 'def-schemas.json');
 
-		await exec(`node cli.js -i ${source} --default-schemas ${cwd('static', 'defaultSchemas.js')} -j ${target}`);
+		await exec(`node cli.js -i ${source} --default-schemas ${cwd('static', 'defaultSchemas.js')} -S "adv-parser/schemas" -j ${target}`);
 
 		expect(parseFile(target)[0].body.schema).to.eql({
 			type: 'object',

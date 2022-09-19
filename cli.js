@@ -21,7 +21,7 @@ program
 .option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 .option('-M, --default-method <method>', 'default @url METHOD')
 .option('-C, --default-code <code>', 'default @response CODE')
-.option('-S, --default-schemas <path>', 'path to js file with default schemas')
+.option('-S, --default-schemas <path...>', 'path to js file with default schemas', collect, null)
 .option('-J, --jsdoc-methods <boolean>', 'generate methods @type, default true')
 .option('-T, --jsdoc-typedefs <boolean>', 'generate @typedef, default true')
 .option('-R, --jsdoc-refs <boolean>', 'use references to jsdoc @typedef or replace them with reference body, default true')
@@ -97,18 +97,28 @@ if (typeof config.exclude === 'string' && config.exclude) {
 config.include = config.include.map(path => resolve(configDir, path));
 config.exclude = config.exclude && config.exclude.map(path => resolve(configDir, path));
 
-if (config.defaultSchemas) {
+const defaultSchemasPaths = config.defaultSchemas && (
+	Array.isArray(config.defaultSchemas) ?
+		config.defaultSchemas :
+		[config.defaultSchemas]
+) || ['adv-parser/schemas'];
+
+for (const path of defaultSchemasPaths) {
 	try {
-		require.resolve(config.defaultSchemas);
+		require.resolve(path);
 	}
 	catch (err) {
-		throw new Error(`Default schemas file not found: ${JSON.stringify(config.defaultSchemas)}`);
+		throw new Error(`Default schemas file not found: ${JSON.stringify(path)}`);
 	}
 }
 
-const defaultSchemas = require(config.defaultSchemas || 'adv-parser/schemas');
+const defaultSchemas = {};
 
-var files = getFiles(config.include);
+for (const path of defaultSchemasPaths) {
+	Object.assign(defaultSchemas, require(path));
+}
+
+let files = getFiles(config.include);
 
 if (config.exclude) {
 	let exclude = getFiles(config.exclude);
@@ -211,9 +221,24 @@ filesToEndpoints(files, {...config, schemas: cache})
 
 
 function resolvePath(target, src, props) {
-	for (let prop of props) {
-		let path = src[prop] || target[prop];
-		target[prop] = path && resolve(configDir, path);
+	const conv = (path) => {
+		if (path.charAt(0) !== '.') {
+			try {
+				require.resolve(path);
+				return path;
+			}
+			catch (e) {}
+		}
+
+		return resolve(configDir, path);
+	};
+
+	for (const prop of props) {
+		const path = src[prop] || target[prop];
+
+		target[prop] = path && (
+			Array.isArray(path) ? path.map(conv) : conv(path)
+		);
 	}
 }
 
@@ -228,4 +253,10 @@ function defaults(target, src, props) {
 		}
 		catch (err) {}
 	}
+}
+
+function collect(value, previous) {
+	previous = previous || [];
+
+	return previous.concat([value]);
 }
