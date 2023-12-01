@@ -431,7 +431,7 @@ describe('config file', function () {
 	it('should generate schemas', async function () {
 		const path = cwd('output', 'schemas.json');
 
-		await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test -s ${path}`);
+		await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test --json ${path}`);
 
 		isExist(path);
 
@@ -440,14 +440,31 @@ describe('config file', function () {
 		expect(data).to.be.an('array').lengthOf(1);
 		expect(data[0]).to.have.property('title', 'Test');
 
-		const {stdout: json} = await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test`);
+		let res = await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test`);
 
-		expect(json).to.be.a('string').and.to.have.string('[');
+		expect(res.stdout).to.be.a('string').and.to.have.string('[');
 
-		data = JSON.parse(json);
+		data = JSON.parse(res.stdout);
 
 		expect(data).to.be.an('array').lengthOf(1);
 		expect(data[0]).to.have.property('title', 'Test');
+
+		res = await exec(`node cli.js  -c ${cwd('apidoc.json')} --only-schemas`);
+
+		expect(res.stdout).to.be.a('string').and.to.have.string('[');
+
+		data = JSON.parse(res.stdout);
+
+		expect(data).to.be.an('array').lengthOf(1);
+		expect(data[0]).to.have.property('title', 'Test');
+
+		res = await exec(`node cli.js  -c ${cwd('apidoc.json')} -s None`);
+
+		expect(res.stdout).to.be.a('string').and.to.have.string('[');
+
+		data = JSON.parse(res.stdout);
+
+		expect(data).to.be.an('array').lengthOf(0);
 	})
 });
 

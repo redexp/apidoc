@@ -362,8 +362,8 @@ Parameters:
 -p, --base-path <path> base path for @see filename comment
 -e, --express <path> generate express middleware validator
 -o, --open-api <path> generate Swagger OpenAPI v3 json
--j, --json <path> generate endpoints json
--s, --export-schemas <names...> generate schemas json
+-j, --json <path> save endpoints to json file
+-s, --only-schemas [names...] save schemas instead of endpoints to json file
 -n, --namespace <namespace> generate validators only with this namespace or comma separated namespaces
 -M, --default-method <method> default @url METHOD
 -C, --default-code <code> default @response CODE
@@ -564,8 +564,8 @@ if (err instanceof context.ValidationError) {
  * `apiDts` same as `--api-dts <path>`
  * `basePath` same as `--base-path <path>`
  * `json` same as `--json <path>`
- * `exportSchemas` array of schemas names to be saved as json. Could be empty array then will be exported all schemas. 
-    Last item of this array could be path to json file, if no path then formatted json will output to console
+ * `onlySchemas` array of schemas names to be saved as json. Could be `true` or empty array then will be exported all schemas. 
+    If no `json` parameter passed then formatted json will output to console
  * `express` same as `--express <path>`
  * `openApi` same as `--open-api <path>`
  * `namespace` same as `--namespace <namespace>`

@@ -17,8 +17,8 @@ program
 .option('-p, --base-path <path>', 'base path for @see filename comment')
 .option('-e, --express <path>', 'generate express middleware validator')
 .option('-o, --open-api <path>', 'generate Swagger OpenAPI v3 json')
-.option('-j, --json <path>', 'generate endpoints json')
-.option('-s, --export-schemas <names...>', 'generate schemas json')
+.option('-j, --json <path>', 'save endpoints to json file')
+.option('-s, --only-schemas [names...]', 'save schemas instead of endpoints to json file')
 .option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 .option('-M, --default-method <method>', 'default @url METHOD')
 .option('-C, --default-code <code>', 'default @response CODE')
@@ -72,7 +72,7 @@ defaults(config, options, [
 	'includeJsdoc',
 	'extraProps',
 	'className',
-	'exportSchemas',
+	'onlySchemas',
 	'pathToRegexp',
 	'requestMethod',
 	'getAjvMethod',
@@ -208,7 +208,7 @@ filesToEndpoints(files, {...config, schemas: cache})
 		);
 	}
 
-	if (config.json) {
+	if (config.json && !config.onlySchemas) {
 		const generateJson = require('./lib/generate/json');
 
 		promises.push(
@@ -216,11 +216,11 @@ filesToEndpoints(files, {...config, schemas: cache})
 		);
 	}
 
-	if (config.exportSchemas) {
+	if (config.onlySchemas) {
 		const generateSchemas = require('./lib/generate/schemas');
 
 		promises.push(
-			generateSchemas(endpoints, config.exportSchemas, configDir)
+			generateSchemas(endpoints, config.onlySchemas, config.json)
 		);
 	}
 

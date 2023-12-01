@@ -14,7 +14,7 @@ export type CliConfig = {
 	express: string,
 	openApi: string,
 	json: string,
-	exportSchemas: Strings,
+	onlySchemas: Strings,
 	namespace: Strings,
 	defaultMethod: "GET" | "POST",
 	defaultCode: number,
