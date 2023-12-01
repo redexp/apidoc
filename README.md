@@ -354,24 +354,30 @@ with [npx](https://www.npmjs.com/package/npx)
 Parameters:
 
 ```
-  -c, --config <path> path to config json file
-  -i, --include <path> path to source file
-  -a, --api-client <path> generate api client
-  -d, --api-dts <path> generate api client .d.ts file
-  -b, --base-url <url> default Api.baseUrl
-  -p, --base-path <path> base path for @see filename comment
-  -e, --express <path> generate express middleware validator
-  -o, --open-api <path> generate Swagger OpenAPI v3 json
-  -j, --json <path> generate endpoints json
-  -n, --namespace <namespace> generate validators only with this namespace or comma separated namespaces
-  -M, --default-method <method> default @url METHOD
-  -C, --default-code <code> default @response CODE
-  -S, --default-schemas <path> path to js file with default schemas
-  -T, --jsdoc-methods <boolean> generate @type for methods, default true
-  -T, --jsdoc-typedefs <boolean> generate @typedef, default true
-  -R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
-  -I, --include-jsdoc <boolean> include to endpoints jsdoc annotations, default false
-  -P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
+-c, --config <path> path to config json file
+-i, --include <path> path to source file
+-a, --api-client <path> generate api client
+-d, --api-dts <path> generate api client .d.ts file
+-b, --base-url <url> default Api.baseUrl
+-p, --base-path <path> base path for @see filename comment
+-e, --express <path> generate express middleware validator
+-o, --open-api <path> generate Swagger OpenAPI v3 json
+-j, --json <path> generate endpoints json
+-s, --export-schemas <names...> generate schemas json
+-n, --namespace <namespace> generate validators only with this namespace or comma separated namespaces
+-M, --default-method <method> default @url METHOD
+-C, --default-code <code> default @response CODE
+-S, --default-schemas <path...> path to js file with default schemas
+-J, --jsdoc-methods <boolean> generate methods @type, default true
+-T, --jsdoc-typedefs <boolean> generate @typedef, default true
+-R, --jsdoc-refs <boolean> use references to jsdoc @typedef or replace them with reference body, default true
+-I, --include-jsdoc <boolean> include to endpoints standard jsdoc annotations, default false
+-P, --extra-props <boolean> value for ajv "object" additionalProperties, default false
+-N, --class-name <string> name of generated api client class, default "Api"
+--path-to-regexp <boolean> whether to add a path-to-regexp support, default true
+--request-method <boolean> whether to add a Api.request method, default true
+--get-ajv-method <boolean> whether to add a Api.getAjv method, default true
+--error-handler-method <boolean> whether to add a Api.errorHandler method, default true
 ```
 
 ## API client
@@ -558,6 +564,8 @@ if (err instanceof context.ValidationError) {
  * `apiDts` same as `--api-dts <path>`
  * `basePath` same as `--base-path <path>`
  * `json` same as `--json <path>`
+ * `exportSchemas` array of schemas names to be saved as json. Could be empty array then will be exported all schemas. 
+    Last item of this array could be path to json file, if no path then formatted json will output to console
  * `express` same as `--express <path>`
  * `openApi` same as `--open-api <path>`
  * `namespace` same as `--namespace <namespace>`

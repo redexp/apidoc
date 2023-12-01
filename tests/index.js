@@ -427,6 +427,28 @@ describe('config file', function () {
 			}
 		});
 	});
+
+	it('should generate schemas', async function () {
+		const path = cwd('output', 'schemas.json');
+
+		await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test -s ${path}`);
+
+		isExist(path);
+
+		let data = require(path);
+
+		expect(data).to.be.an('array').lengthOf(1);
+		expect(data[0]).to.have.property('title', 'Test');
+
+		const {stdout: json} = await exec(`node cli.js  -c ${cwd('apidoc.json')} -s Test`);
+
+		expect(json).to.be.a('string').and.to.have.string('[');
+
+		data = JSON.parse(json);
+
+		expect(data).to.be.an('array').lengthOf(1);
+		expect(data[0]).to.have.property('title', 'Test');
+	})
 });
 
 function cwd(...args) {

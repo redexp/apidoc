@@ -18,6 +18,7 @@ program
 .option('-e, --express <path>', 'generate express middleware validator')
 .option('-o, --open-api <path>', 'generate Swagger OpenAPI v3 json')
 .option('-j, --json <path>', 'generate endpoints json')
+.option('-s, --export-schemas <names...>', 'generate schemas json')
 .option('-n, --namespace <namespace>', 'generate validators only with this namespace or comma separated namespaces')
 .option('-M, --default-method <method>', 'default @url METHOD')
 .option('-C, --default-code <code>', 'default @response CODE')
@@ -37,6 +38,8 @@ program
 program.parse(process.argv);
 
 const CWD = process.cwd();
+
+/** @type {import('./index').CliConfig} */
 const options = program.opts();
 
 let configPath = options.config;
@@ -52,6 +55,8 @@ if (configPath) {
 }
 
 const configDir = configPath ? dirname(configPath) : CWD;
+
+/** @type {import('./index').CliConfig} */
 const config = configPath ? JSON.parse(readFileSync(configPath, 'utf-8')) : {};
 
 defaults(config, options, [
@@ -67,6 +72,7 @@ defaults(config, options, [
 	'includeJsdoc',
 	'extraProps',
 	'className',
+	'exportSchemas',
 	'pathToRegexp',
 	'requestMethod',
 	'getAjvMethod',
@@ -137,7 +143,7 @@ if (typeof config.extraProps === 'boolean') {
 	getProp(defaultSchemas.object, 'additionalProperties').value.value = config.extraProps;
 }
 
-var cache = {...defaultSchemas};
+const cache = {...defaultSchemas};
 
 filesToEndpoints(files, {...config, schemas: cache})
 .then(function (endpoints) {
@@ -152,7 +158,7 @@ filesToEndpoints(files, {...config, schemas: cache})
 		});
 	}
 
-	var schemas = {};
+	const schemas = {};
 
 	for (let name in cache) {
 		if (defaultSchemas.hasOwnProperty(name)) continue;
@@ -160,7 +166,7 @@ filesToEndpoints(files, {...config, schemas: cache})
 		schemas[name] = generateAjvSchema(cache[name], cache);
 	}
 
-	var promises = [];
+	const promises = [];
 
 	if (config.apiClient) {
 		const generateApiClient = require('./lib/generate/apiClient');
@@ -207,6 +213,14 @@ filesToEndpoints(files, {...config, schemas: cache})
 
 		promises.push(
 			generateJson(endpoints.filter(e => !!e.url), config.json)
+		);
+	}
+
+	if (config.exportSchemas) {
+		const generateSchemas = require('./lib/generate/schemas');
+
+		promises.push(
+			generateSchemas(endpoints, config.exportSchemas, configDir)
 		);
 	}
 

@@ -1,8 +1,9 @@
 {
   "name": "api-doc-validator",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "description": "api doc and validator",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "mocha --ui bdd ./tests"
   },
