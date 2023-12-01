@@ -37,8 +37,9 @@ program
 program.parse(process.argv);
 
 const CWD = process.cwd();
+const options = program.opts();
 
-let configPath = program.config;
+let configPath = options.config;
 
 if (configPath) {
 	if (!isAbsolute(configPath)) {
@@ -53,7 +54,7 @@ if (configPath) {
 const configDir = configPath ? dirname(configPath) : CWD;
 const config = configPath ? JSON.parse(readFileSync(configPath, 'utf-8')) : {};
 
-defaults(config, program, [
+defaults(config, options, [
 	'include',
 	'baseUrl',
 	'namespace',
@@ -72,7 +73,7 @@ defaults(config, program, [
 	'errorHandlerMethod',
 ]);
 
-resolvePath(config, program, [
+resolvePath(config, options, [
 	'basePath',
 	'apiClient',
 	'apiDts',
