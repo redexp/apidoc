@@ -217,6 +217,41 @@ describe('libs', function () {
 			}
 		});
 		expect(jsdoc).to.eql(`{test?: "a"|"2"}`);
+
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			patternProperties: {
+				"^\\d+$": {
+					type: 'object',
+					required: [],
+					properties: {
+						test: {type: 'string'}
+					}
+				},
+			}
+		});
+		expect(jsdoc).to.eql('{[prop: number]: {test?: string}}');
+
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			patternProperties: {
+				"^\\d+$": {type: 'string'},
+				"^\\d$": {type: 'string'},
+				"^\\w+$": {type: 'string'},
+			}
+		});
+		expect(jsdoc).to.eql('{[prop1: number]: string, [prop2: number]: string, [prop3: string]: string}');
+
+		jsdoc = ajvToJsDoc({
+			type: 'object',
+			properties: {
+				test: {type: 'string'}
+			},
+			patternProperties: {
+				"^\\d+$": {type: 'string'},
+			}
+		});
+		expect(jsdoc).to.eql('{test?: string, [prop: number]: string}');
 	});
 });
 
