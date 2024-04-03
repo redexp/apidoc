@@ -17,6 +17,88 @@ var x = {
 
 /** test5 */
 
+const t = {
+	/**
+	 * @param a
+	 */
+	test1: function (a) {
+
+	},
+
+	/**
+	 * @param a
+	 */
+	test2: async function (a) {
+
+	},
+
+	/**
+	 * @param a
+	 */
+	test3(a) {
+
+	},
+
+	/**
+	 * @param a
+	 */
+	async test4(a) {
+
+	},
+};
+
+/**
+ * class
+ */
+class Test {
+	/**
+	 * @param a
+	 */
+	test1(a) {
+
+	}
+
+	/**
+	 * @param a
+	 */
+	async test2(a) {
+
+	}
+
+	/**
+	 * @param a
+	 */
+	static test3(a) {
+
+	}
+
+	/**
+	 * @param a
+	 */
+	async static test3(a) {
+
+	}
+}
+
+/**
+ * func
+ */
+function test1() {
+
+}
+
+/**
+ * func
+ */
+async function test2() {
+
+}
+
+/**
+ * func
+ */
+const f = async () => {};
+
 /* invalid1 */
 
 /**

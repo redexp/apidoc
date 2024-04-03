@@ -9,9 +9,10 @@ describe('libs', function () {
 
 		parseComments(resolve(__dirname, 'src', 'comments.js'))
 		.then(function (list) {
-			expect(list).to.have.length(5);
+			expect(list).to.have.length(17);
 			expect(list).to.eql([
 				{
+					value: "\n test1\n",
 					start: {
 						line: 1,
 						column: 0
@@ -20,9 +21,13 @@ describe('libs', function () {
 						line: 3,
 						column: 3
 					},
-					value: "\n test1\n"
+					target: {
+						name: "x",
+						var: "var"
+					}
 				},
 				{
+					value: "\n test2 ",
 					start: {
 						line: 6,
 						column: 1
@@ -30,10 +35,10 @@ describe('libs', function () {
 					end: {
 						line: 7,
 						column: 12
-					},
-					value: "\n test2 "
+					}
 				},
 				{
+					value: "\n test3\n",
 					start: {
 						line: 10,
 						column: 0
@@ -41,10 +46,10 @@ describe('libs', function () {
 					end: {
 						line: 12,
 						column: 4
-					},
-					value: "\n test3\n"
+					}
 				},
 				{
+					value: "\n /** test4 /**\n ",
 					start: {
 						line: 14,
 						column: 0
@@ -52,10 +57,10 @@ describe('libs', function () {
 					end: {
 						line: 16,
 						column: 5
-					},
-					value: "\n /** test4 /**\n "
+					}
 				},
 				{
+					value: " test5 ",
 					start: {
 						line: 18,
 						column: 0
@@ -64,7 +69,190 @@ describe('libs', function () {
 						line: 18,
 						column: 12
 					},
-					value: " test5 "
+					target: {
+						name: "t",
+						var: "const"
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 21,
+						column: 1
+					},
+					end: {
+						line: 23,
+						column: 4
+					},
+					target: {
+						name: "test1"
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 28,
+						column: 1
+					},
+					end: {
+						line: 30,
+						column: 4
+					},
+					target: {
+						name: "test2",
+						async: true
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 35,
+						column: 1
+					},
+					end: {
+						line: 37,
+						column: 4
+					},
+					target: {
+						name: "test3"
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 42,
+						column: 1
+					},
+					end: {
+						line: 44,
+						column: 4
+					},
+					target: {
+						name: "test4",
+						async: true
+					}
+				},
+				{
+					value: "\n class\n",
+					start: {
+						line: 50,
+						column: 0
+					},
+					end: {
+						line: 52,
+						column: 3
+					},
+					target: {
+						name: "Test",
+						class: true
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 54,
+						column: 1
+					},
+					end: {
+						line: 56,
+						column: 4
+					},
+					target: {
+						name: "test1"
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 61,
+						column: 1
+					},
+					end: {
+						line: 63,
+						column: 4
+					},
+					target: {
+						name: "test2",
+						async: true
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 68,
+						column: 1
+					},
+					end: {
+						line: 70,
+						column: 4
+					},
+					target: {
+						name: "test3",
+						static: true
+					}
+				},
+				{
+					value: "\n @param a\n",
+					start: {
+						line: 75,
+						column: 1
+					},
+					end: {
+						line: 77,
+						column: 4
+					},
+					target: {
+						name: "test3",
+						async: true,
+						static: true
+					}
+				},
+				{
+					value: "\n func\n",
+					start: {
+						line: 83,
+						column: 0
+					},
+					end: {
+						line: 85,
+						column: 3
+					},
+					target: {
+						name: "test1",
+						function: true
+					}
+				},
+				{
+					value: "\n func\n",
+					start: {
+						line: 90,
+						column: 0
+					},
+					end: {
+						line: 92,
+						column: 3
+					},
+					target: {
+						name: "test2",
+						async: true,
+						function: true
+					}
+				},
+				{
+					value: "\n func\n",
+					start: {
+						line: 97,
+						column: 0
+					},
+					end: {
+						line: 99,
+						column: 3
+					},
+					target: {
+						name: "f",
+						var: "const",
+						async: true
+					}
 				}
 			]);
 
