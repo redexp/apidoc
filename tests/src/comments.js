@@ -97,7 +97,7 @@ async function test2() {
 /**
  * func
  */
-const f = async () => {};
+const flet = async () => {};
 
 /* invalid1 */
 

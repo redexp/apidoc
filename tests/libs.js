@@ -249,7 +249,7 @@ describe('libs', function () {
 						column: 3
 					},
 					target: {
-						name: "f",
+						name: "flet",
 						var: "const",
 						async: true
 					}
