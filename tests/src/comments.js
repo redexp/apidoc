@@ -99,6 +99,22 @@ async function test2() {
  */
 const flet = async () => {};
 
+/** @array $test */
+const arr = [
+	'asd',
+	'qwe',
+];
+
+/**
+ * @array $test_2
+ */
+const obj = {
+	attributes: [
+		"id",
+		"name",
+	],
+};
+
 /* invalid1 */
 
 /**

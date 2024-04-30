@@ -9,7 +9,7 @@ describe('libs', function () {
 
 		parseComments(resolve(__dirname, 'src', 'comments.js'))
 		.then(function (list) {
-			expect(list).to.have.length(17);
+			expect(list).to.have.length(19);
 			expect(list).to.eql([
 				{
 					value: "\n test1\n",
@@ -253,7 +253,37 @@ describe('libs', function () {
 						var: "const",
 						async: true
 					}
-				}
+				},
+				{
+					value: " @array $test ",
+					array: [
+						"asd",
+						"qwe",
+					],
+					start: {
+						column: 0,
+						line: 102,
+					},
+					end: {
+						column: 19,
+						line: 102,
+					}
+				},
+				{
+					value: "\n @array $test_2\n",
+					array: [
+						"id",
+						"name",
+					],
+					start: {
+						column: 0,
+						line: 108,
+					},
+					end: {
+						column: 3,
+						line: 110,
+					}
+				},
 			]);
 
 			done();
