@@ -1,4 +1,5 @@
 const chai = require('chai');
+const parseComments = require("../lib/parseComments");
 chai.use(require('chai-shallow-deep-equal'));
 const {expect} = chai;
 
@@ -313,6 +314,26 @@ describe('libs', function () {
 			end: {
 				column: 3,
 				line: 3
+			}
+		}]);
+
+		const arr = parseComments.createHandle();
+
+		arr(`/** @array $test */`);
+		arr(`asd: ['a',`);
+		arr(`'b',`);
+		arr(`'c']`);
+
+		expect(arr.list).to.eql([{
+			value: ' @array $test ',
+			array: ['a', 'b', 'c'],
+			start: {
+				line: 1,
+				column: 0,
+			},
+			end: {
+				line: 1,
+				column: 19,
 			}
 		}]);
 	});
