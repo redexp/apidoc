@@ -111,7 +111,7 @@ const arr = [
 const obj = {
 	attributes: [
 		"id",
-		{}, // ignored
+		[], // ignored
 		"name",
 	],
 };

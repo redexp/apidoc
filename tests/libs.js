@@ -3,292 +3,318 @@ chai.use(require('chai-shallow-deep-equal'));
 const {expect} = chai;
 
 describe('libs', function () {
-	it('parseComments', function (done) {
+	it('parseComments', async function () {
 		const parseComments = require('../lib/parseComments');
 		const {resolve} = require('path');
 
-		parseComments(resolve(__dirname, 'src', 'comments.js'))
-		.then(function (list) {
-			expect(list).to.have.length(19);
-			expect(list).to.eql([
-				{
-					value: "\n test1\n",
-					start: {
-						line: 1,
-						column: 0
-					},
-					end: {
-						line: 3,
-						column: 3
-					},
-					target: {
-						name: "x",
-						var: "var"
-					}
-				},
-				{
-					value: "\n test2 ",
-					start: {
-						line: 6,
-						column: 1
-					},
-					end: {
-						line: 7,
-						column: 12
-					}
-				},
-				{
-					value: "\n test3\n",
-					start: {
-						line: 10,
-						column: 0
-					},
-					end: {
-						line: 12,
-						column: 4
-					}
-				},
-				{
-					value: "\n /** test4 /**\n ",
-					start: {
-						line: 14,
-						column: 0
-					},
-					end: {
-						line: 16,
-						column: 5
-					}
-				},
-				{
-					value: " test5 ",
-					start: {
-						line: 18,
-						column: 0
-					},
-					end: {
-						line: 18,
-						column: 12
-					},
-					target: {
-						name: "t",
-						var: "const"
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 21,
-						column: 1
-					},
-					end: {
-						line: 23,
-						column: 4
-					},
-					target: {
-						name: "test1"
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 28,
-						column: 1
-					},
-					end: {
-						line: 30,
-						column: 4
-					},
-					target: {
-						name: "test2",
-						async: true
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 35,
-						column: 1
-					},
-					end: {
-						line: 37,
-						column: 4
-					},
-					target: {
-						name: "test3"
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 42,
-						column: 1
-					},
-					end: {
-						line: 44,
-						column: 4
-					},
-					target: {
-						name: "test4",
-						async: true
-					}
-				},
-				{
-					value: "\n class\n",
-					start: {
-						line: 50,
-						column: 0
-					},
-					end: {
-						line: 52,
-						column: 3
-					},
-					target: {
-						name: "Test",
-						class: true
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 54,
-						column: 1
-					},
-					end: {
-						line: 56,
-						column: 4
-					},
-					target: {
-						name: "test1"
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 61,
-						column: 1
-					},
-					end: {
-						line: 63,
-						column: 4
-					},
-					target: {
-						name: "test2",
-						async: true
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 68,
-						column: 1
-					},
-					end: {
-						line: 70,
-						column: 4
-					},
-					target: {
-						name: "test3",
-						static: true
-					}
-				},
-				{
-					value: "\n @param a\n",
-					start: {
-						line: 75,
-						column: 1
-					},
-					end: {
-						line: 77,
-						column: 4
-					},
-					target: {
-						name: "test3",
-						async: true,
-						static: true
-					}
-				},
-				{
-					value: "\n func\n",
-					start: {
-						line: 83,
-						column: 0
-					},
-					end: {
-						line: 85,
-						column: 3
-					},
-					target: {
-						name: "test1",
-						function: true
-					}
-				},
-				{
-					value: "\n func\n",
-					start: {
-						line: 90,
-						column: 0
-					},
-					end: {
-						line: 92,
-						column: 3
-					},
-					target: {
-						name: "test2",
-						async: true,
-						function: true
-					}
-				},
-				{
-					value: "\n func\n",
-					start: {
-						line: 97,
-						column: 0
-					},
-					end: {
-						line: 99,
-						column: 3
-					},
-					target: {
-						name: "flet",
-						var: "const",
-						async: true
-					}
-				},
-				{
-					value: " @array $test ",
-					array: [
-						"asd",
-						"qwe",
-					],
-					start: {
-						column: 0,
-						line: 102,
-					},
-					end: {
-						column: 19,
-						line: 102,
-					}
-				},
-				{
-					value: "\n @array $test_2\n",
-					array: [
-						"id",
-						"name",
-					],
-					start: {
-						column: 0,
-						line: 108,
-					},
-					end: {
-						column: 3,
-						line: 110,
-					}
-				},
-			]);
+		const list = await parseComments(resolve(__dirname, 'src', 'comments.js'));
 
-			done();
-		})
-		.catch(done);
+		expect(list).to.have.length(19);
+		expect(list).to.eql([
+			{
+				value: "\n test1\n",
+				start: {
+					line: 1,
+					column: 0
+				},
+				end: {
+					line: 3,
+					column: 3
+				},
+				target: {
+					name: "x",
+					var: "var"
+				}
+			},
+			{
+				value: "\n test2 ",
+				start: {
+					line: 6,
+					column: 1
+				},
+				end: {
+					line: 7,
+					column: 12
+				}
+			},
+			{
+				value: "\n test3\n",
+				start: {
+					line: 10,
+					column: 0
+				},
+				end: {
+					line: 12,
+					column: 4
+				}
+			},
+			{
+				value: "\n /** test4 /**\n ",
+				start: {
+					line: 14,
+					column: 0
+				},
+				end: {
+					line: 16,
+					column: 5
+				}
+			},
+			{
+				value: " test5 ",
+				start: {
+					line: 18,
+					column: 0
+				},
+				end: {
+					line: 18,
+					column: 12
+				},
+				target: {
+					name: "t",
+					var: "const"
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 21,
+					column: 1
+				},
+				end: {
+					line: 23,
+					column: 4
+				},
+				target: {
+					name: "test1"
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 28,
+					column: 1
+				},
+				end: {
+					line: 30,
+					column: 4
+				},
+				target: {
+					name: "test2",
+					async: true
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 35,
+					column: 1
+				},
+				end: {
+					line: 37,
+					column: 4
+				},
+				target: {
+					name: "test3"
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 42,
+					column: 1
+				},
+				end: {
+					line: 44,
+					column: 4
+				},
+				target: {
+					name: "test4",
+					async: true
+				}
+			},
+			{
+				value: "\n class\n",
+				start: {
+					line: 50,
+					column: 0
+				},
+				end: {
+					line: 52,
+					column: 3
+				},
+				target: {
+					name: "Test",
+					class: true
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 54,
+					column: 1
+				},
+				end: {
+					line: 56,
+					column: 4
+				},
+				target: {
+					name: "test1"
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 61,
+					column: 1
+				},
+				end: {
+					line: 63,
+					column: 4
+				},
+				target: {
+					name: "test2",
+					async: true
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 68,
+					column: 1
+				},
+				end: {
+					line: 70,
+					column: 4
+				},
+				target: {
+					name: "test3",
+					static: true
+				}
+			},
+			{
+				value: "\n @param a\n",
+				start: {
+					line: 75,
+					column: 1
+				},
+				end: {
+					line: 77,
+					column: 4
+				},
+				target: {
+					name: "test3",
+					async: true,
+					static: true
+				}
+			},
+			{
+				value: "\n func\n",
+				start: {
+					line: 83,
+					column: 0
+				},
+				end: {
+					line: 85,
+					column: 3
+				},
+				target: {
+					name: "test1",
+					function: true
+				}
+			},
+			{
+				value: "\n func\n",
+				start: {
+					line: 90,
+					column: 0
+				},
+				end: {
+					line: 92,
+					column: 3
+				},
+				target: {
+					name: "test2",
+					async: true,
+					function: true
+				}
+			},
+			{
+				value: "\n func\n",
+				start: {
+					line: 97,
+					column: 0
+				},
+				end: {
+					line: 99,
+					column: 3
+				},
+				target: {
+					name: "flet",
+					var: "const",
+					async: true
+				}
+			},
+			{
+				value: " @array $test ",
+				target: {
+					var: 'const',
+					name: 'arr',
+				},
+				array: [
+					"asd",
+					"qwe",
+				],
+				start: {
+					column: 0,
+					line: 102,
+				},
+				end: {
+					column: 19,
+					line: 102,
+				}
+			},
+			{
+				value: "\n @array $test_2\n",
+				target: {
+					var: 'const',
+					name: 'obj',
+				},
+				array: [
+					"id",
+					"name",
+				],
+				start: {
+					column: 0,
+					line: 108,
+				},
+				end: {
+					column: 3,
+					line: 110,
+				}
+			},
+		]);
+
+		const handle = parseComments.createHandle();
+
+		handle(`asdf/`);
+		handle(`**\n  * `);
+		handle(`@test\n`);
+		handle(` */asd`);
+
+		expect(handle.list).to.eql([{
+			value: "\n @test\n",
+			target: {
+				name: "asd"
+			},
+			start: {
+				column: 4,
+				line: 1
+			},
+			end: {
+				column: 3,
+				line: 3
+			}
+		}]);
 	});
 
 	it('parseAnnotations', function () {
