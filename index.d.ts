@@ -1,6 +1,8 @@
 export function filesToEndpoints(files: Strings, options: Partial<CliConfig>): Promise<Endpoint[]>;
 export function generateExpressMiddleware(endpoints: Endpoint[], file: string, options?: {schemas?: object} & Pick<CliConfig, 'jsdocTypedefs'>): void;
 export function generateApiClient(endpoints: Endpoint[], file: string, options?: {schemas?: object} & Partial<CliConfig>): void;
+export function parseComments(file: string): Promise<ParsedComment[]>;
+export function parseAnnotations(comment: string, options?: Partial<CliConfig>): ParsedAnnotation[];
 
 export type CliConfig = {
 	config: string,
@@ -71,3 +73,67 @@ export type Endpoint = {
 };
 
 export type Schema = {[prop: string]: any};
+
+export type ParsedComment = {
+	value: string,
+	start: Loc,
+	end: Loc,
+	target?: ParsedCommentTarget,
+	array?: ParsedCommentArray,
+};
+
+export type Loc = {
+	line: number,
+	column: number,
+};
+
+export type ParsedCommentTarget = {
+	name: string,
+	var?: 'var' | 'let' | 'const',
+	class?: true,
+	async?: true,
+	static?: true,
+	function?: true,
+};
+
+export type ParsedCommentArray = string[];
+
+export type ParsedAnnotation = {
+	name: AnnotationEnum,
+	value: AnnotationNameToValue[AnnotationEnum]
+};
+
+export enum AnnotationEnum {
+	NS = "ns",
+	Schema = "schema",
+	BaseUrl = "baseUrl",
+	Url = "url",
+	Params = "params",
+	Query = "query",
+	Body = "body",
+	File = "file",
+	Files = "files",
+	Response = "response",
+	Call = "call",
+	Description = "description",
+}
+
+export type AnnotationNameToValue = {
+	[AnnotationEnum.NS]: string,
+	[AnnotationEnum.Schema]: AnnotationSchema & {
+		name: string,
+		local: boolean,
+	},
+	[AnnotationEnum.BaseUrl]: string,
+	[AnnotationEnum.Url]: string,
+	[AnnotationEnum.Params]: AnnotationSchema,
+	[AnnotationEnum.Query]: AnnotationSchema,
+	[AnnotationEnum.Body]: AnnotationSchema,
+	[AnnotationEnum.File]: AnnotationSchema,
+	[AnnotationEnum.Files]: AnnotationSchema,
+	[AnnotationEnum.Response]: AnnotationSchema & {code: null | {type: 'string' | 'number'}},
+	[AnnotationEnum.Call]: string,
+	[AnnotationEnum.Description]: string,
+};
+
+type AnnotationSchema = {schema: string,};
