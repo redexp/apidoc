@@ -302,7 +302,7 @@ describe('libs', function () {
 		handle(`@test\n`);
 		handle(` */asd`);
 
-		expect(handle.list).to.eql([{
+		expect(handle.comments).to.eql([{
 			value: "\n @test\n",
 			target: {
 				name: "asd"
@@ -324,7 +324,7 @@ describe('libs', function () {
 		arr(`'b',`);
 		arr(`'c']`);
 
-		expect(arr.list).to.eql([{
+		expect(arr.comments).to.eql([{
 			value: ' @array $test ',
 			array: ['a', 'b', 'c'],
 			start: {

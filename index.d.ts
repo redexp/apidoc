@@ -1,8 +1,17 @@
 export function filesToEndpoints(files: Strings, options: Partial<CliConfig>): Promise<Endpoint[]>;
 export function generateExpressMiddleware(endpoints: Endpoint[], file: string, options?: {schemas?: object} & Pick<CliConfig, 'jsdocTypedefs'>): void;
 export function generateApiClient(endpoints: Endpoint[], file: string, options?: {schemas?: object} & Partial<CliConfig>): void;
-export function parseComments(file: string): Promise<ParsedComment[]>;
 export function parseAnnotations(comment: string, options?: Partial<CliConfig>): ParsedAnnotation[];
+
+export type parseComments = {
+	createHandle: () => ParseCommentsHandle,
+	(file: string): Promise<ParsedComment[]>,
+};
+
+export type ParseCommentsHandle = {
+	comments: ParsedComment[],
+	(code: string): void,
+};
 
 export type CliConfig = {
 	config: string,
