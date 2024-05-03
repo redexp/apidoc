@@ -1,5 +1,4 @@
 const chai = require('chai');
-const parseComments = require("../lib/parseComments");
 chai.use(require('chai-shallow-deep-equal'));
 const {expect} = chai;
 
@@ -342,28 +341,63 @@ describe('libs', function () {
 		const parseAnnotations = require('../lib/parseAnnotations');
 
 		var list = parseAnnotations(`
-		Some text
-		second line
-		@test1 some text
-		@test-2 some\ntext
-		@test_3 some\ntext\ntext\n`);
+		* Some text
+		* second line
+		* @test1 some text
+		* @test-2 some
+		* text
+		* @test_3 some
+		* text
+		* text\n`);
 
 		expect(list).to.deep.equal([
 			{
 				name: 'description',
-				value: 'Some text\nsecond line',
+				value: 'Some text\n\t\t  second line',
+				start: {
+					line: 1,
+					column: 4,
+				},
+				end: {
+					line: 2,
+					column: 15,
+				},
 			},
 			{
 				name: 'test1',
 				value: ' some text',
+				start: {
+					line: 3,
+					column: 4,
+				},
+				end: {
+					line: 3,
+					column: 20,
+				},
 			},
 			{
 				name: 'test-2',
-				value: " some\ntext",
+				value: " some\n\t\t  text",
+				start: {
+					line: 4,
+					column: 4,
+				},
+				end: {
+					line: 5,
+					column: 8,
+				},
 			},
 			{
 				name: 'test_3',
-				value: " some\ntext\ntext",
+				value: " some\n\t\t  text\n\t\t  text\n",
+				start: {
+					line: 6,
+					column: 4,
+				},
+				end: {
+					line: 9,
+					column: 0,
+				},
 			},
 		]);
 

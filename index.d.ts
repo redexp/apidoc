@@ -109,7 +109,9 @@ export type ParsedCommentArray = string[];
 
 export type ParsedAnnotation = {
 	name: AnnotationEnum,
-	value: AnnotationNameToValue[AnnotationEnum]
+	value: AnnotationNameToValue[AnnotationEnum],
+	start: Loc,
+	end: Loc,
 };
 
 export enum AnnotationEnum {
