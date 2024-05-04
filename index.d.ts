@@ -101,6 +101,7 @@ export type ParsedComment = {
 export type Loc = {
 	line: number,
 	column: number,
+	index: number,
 };
 
 export type ParsedCommentTarget = {
