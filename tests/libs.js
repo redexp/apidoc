@@ -15,11 +15,13 @@ describe('libs', function () {
 				value: "\n test1\n",
 				start: {
 					line: 1,
-					column: 0
+					column: 0,
+					index: 0,
 				},
 				end: {
 					line: 3,
-					column: 3
+					column: 3,
+					index: 16,
 				},
 				target: {
 					name: "x",
@@ -30,44 +32,52 @@ describe('libs', function () {
 				value: "\n test2 ",
 				start: {
 					line: 6,
-					column: 1
+					column: 1,
+					index: 29,
 				},
 				end: {
 					line: 7,
-					column: 12
+					column: 12,
+					index: 45,
 				}
 			},
 			{
 				value: "\n test3\n",
 				start: {
 					line: 10,
-					column: 0
+					column: 0,
+					index: 50,
 				},
 				end: {
 					line: 12,
-					column: 4
+					column: 4,
+					index: 67,
 				}
 			},
 			{
 				value: "\n /** test4 /**\n ",
 				start: {
 					line: 14,
-					column: 0
+					column: 0,
+					index: 69,
 				},
 				end: {
 					line: 16,
-					column: 5
+					column: 5,
+					index: 95,
 				}
 			},
 			{
 				value: " test5 ",
 				start: {
 					line: 18,
-					column: 0
+					column: 0,
+					index: 97,
 				},
 				end: {
 					line: 18,
-					column: 12
+					column: 12,
+					index: 109,
 				},
 				target: {
 					name: "t",
@@ -78,11 +88,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 21,
-					column: 1
+					column: 1,
+					index: 124,
 				},
 				end: {
 					line: 23,
-					column: 4
+					column: 4,
+					index: 145,
 				},
 				target: {
 					name: "test1"
@@ -92,11 +104,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 28,
-					column: 1
+					column: 1,
+					index: 176,
 				},
 				end: {
 					line: 30,
-					column: 4
+					column: 4,
+					index: 197,
 				},
 				target: {
 					name: "test2",
@@ -107,11 +121,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 35,
-					column: 1
+					column: 1,
+					index: 234,
 				},
 				end: {
 					line: 37,
-					column: 4
+					column: 4,
+					index: 255,
 				},
 				target: {
 					name: "test3"
@@ -121,11 +137,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 42,
-					column: 1
+					column: 1,
+					index: 275,
 				},
 				end: {
 					line: 44,
-					column: 4
+					column: 4,
+					index: 296,
 				},
 				target: {
 					name: "test4",
@@ -136,11 +154,13 @@ describe('libs', function () {
 				value: "\n class\n",
 				start: {
 					line: 50,
-					column: 0
+					column: 0,
+					index: 324,
 				},
 				end: {
 					line: 52,
-					column: 3
+					column: 3,
+					index: 340,
 				},
 				target: {
 					name: "Test",
@@ -151,11 +171,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 54,
-					column: 1
+					column: 1,
+					index: 355,
 				},
 				end: {
 					line: 56,
-					column: 4
+					column: 4,
+					index: 376,
 				},
 				target: {
 					name: "test1"
@@ -165,11 +187,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 61,
-					column: 1
+					column: 1,
+					index: 395,
 				},
 				end: {
 					line: 63,
-					column: 4
+					column: 4,
+					index: 416,
 				},
 				target: {
 					name: "test2",
@@ -180,11 +204,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 68,
-					column: 1
+					column: 1,
+					index: 441,
 				},
 				end: {
 					line: 70,
-					column: 4
+					column: 4,
+					index: 462,
 				},
 				target: {
 					name: "test3",
@@ -195,11 +221,13 @@ describe('libs', function () {
 				value: "\n @param a\n",
 				start: {
 					line: 75,
-					column: 1
+					column: 1,
+					index: 488,
 				},
 				end: {
 					line: 77,
-					column: 4
+					column: 4,
+					index: 509,
 				},
 				target: {
 					name: "test3",
@@ -211,11 +239,13 @@ describe('libs', function () {
 				value: "\n func\n",
 				start: {
 					line: 83,
-					column: 0
+					column: 0,
+					index: 542,
 				},
 				end: {
 					line: 85,
-					column: 3
+					column: 3,
+					index: 557,
 				},
 				target: {
 					name: "test1",
@@ -226,11 +256,13 @@ describe('libs', function () {
 				value: "\n func\n",
 				start: {
 					line: 90,
-					column: 0
+					column: 0,
+					index: 581,
 				},
 				end: {
 					line: 92,
-					column: 3
+					column: 3,
+					index: 596,
 				},
 				target: {
 					name: "test2",
@@ -242,11 +274,13 @@ describe('libs', function () {
 				value: "\n func\n",
 				start: {
 					line: 97,
-					column: 0
+					column: 0,
+					index: 626,
 				},
 				end: {
 					line: 99,
-					column: 3
+					column: 3,
+					index: 641,
 				},
 				target: {
 					name: "flet",
@@ -265,12 +299,14 @@ describe('libs', function () {
 					"qwe",
 				],
 				start: {
-					column: 0,
 					line: 102,
+					column: 0,
+					index: 672,
 				},
 				end: {
-					column: 19,
 					line: 102,
+					column: 19,
+					index: 691,
 				}
 			},
 			{
@@ -284,12 +320,14 @@ describe('libs', function () {
 					"name",
 				],
 				start: {
-					column: 0,
 					line: 108,
+					column: 0,
+					index: 726,
 				},
 				end: {
-					column: 3,
 					line: 110,
+					column: 3,
+					index: 751,
 				}
 			},
 		]);
@@ -307,12 +345,14 @@ describe('libs', function () {
 				name: "asd"
 			},
 			start: {
+				line: 1,
 				column: 4,
-				line: 1
+				index: 4,
 			},
 			end: {
+				line: 3,
 				column: 3,
-				line: 3
+				index: 21,
 			}
 		}]);
 
@@ -329,10 +369,12 @@ describe('libs', function () {
 			start: {
 				line: 1,
 				column: 0,
+				index: 0,
 			},
 			end: {
 				line: 1,
 				column: 19,
+				index: 19,
 			}
 		}]);
 
@@ -348,10 +390,12 @@ describe('libs', function () {
 			start: {
 				line: 1,
 				column: 2,
+				index: 2,
 			},
 			end: {
 				line: 3,
 				column: 4,
+				index: 25,
 			},
 		}]);
 
@@ -367,10 +411,12 @@ describe('libs', function () {
 			start: {
 				line: 1,
 				column: 2,
+				index: 2,
 			},
 			end: {
 				line: 3,
 				column: 4,
+				index: 25,
 			},
 		}]);
 	});
@@ -395,10 +441,12 @@ describe('libs', function () {
 				start: {
 					line: 1,
 					column: 4,
+					index: 5,
 				},
 				end: {
 					line: 2,
 					column: 15,
+					index: 31,
 				},
 			},
 			{
@@ -407,10 +455,12 @@ describe('libs', function () {
 				start: {
 					line: 3,
 					column: 4,
+					index: 35,
 				},
 				end: {
 					line: 3,
 					column: 20,
+					index: 51,
 				},
 			},
 			{
@@ -419,10 +469,12 @@ describe('libs', function () {
 				start: {
 					line: 4,
 					column: 4,
+					index: 56,
 				},
 				end: {
 					line: 5,
 					column: 8,
+					index: 77,
 				},
 			},
 			{
@@ -431,10 +483,12 @@ describe('libs', function () {
 				start: {
 					line: 6,
 					column: 4,
+					index: 82,
 				},
 				end: {
 					line: 9,
 					column: 0,
+					index: 113,
 				},
 			},
 		]);
