@@ -4,8 +4,15 @@ export function generateApiClient(endpoints: Endpoint[], file: string, options?:
 export function parseAnnotations(comment: string, options?: Partial<CliConfig>): ParsedAnnotation[];
 
 export type parseComments = {
-	createHandle: () => ParseCommentsHandle,
-	(file: string): Promise<ParsedComment[]>,
+	CLEAN_MODE: 1,
+	INNER_MODE: 2,
+	OUTER_MODE: 3,
+	createHandle: (params?: ParseCommentsParams) => ParseCommentsHandle,
+	(file: string, params?: ParseCommentsParams): Promise<ParsedComment[]>,
+};
+
+export type ParseCommentsParams = {
+	mode?: 1 | 2 | 3,
 };
 
 export type ParseCommentsHandle = {
