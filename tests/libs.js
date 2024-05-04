@@ -1,4 +1,5 @@
 const chai = require('chai');
+const parseComments = require("../lib/parseComments");
 chai.use(require('chai-shallow-deep-equal'));
 const {expect} = chai;
 
@@ -334,6 +335,44 @@ describe('libs', function () {
 				line: 1,
 				column: 19,
 			}
+		}]);
+
+		let modes = parseComments.createHandle({mode: parseComments.INNER_MODE});
+		modes(`  /**
+		* @test text
+		*/  `);
+
+		expect(modes.comments).to.eql([{
+			value: `
+		* @test text
+		`,
+			start: {
+				line: 1,
+				column: 2,
+			},
+			end: {
+				line: 3,
+				column: 4,
+			},
+		}]);
+
+		modes = parseComments.createHandle({mode: parseComments.OUTER_MODE});
+		modes(`  /**
+		* @test text
+		*/  `);
+
+		expect(modes.comments).to.eql([{
+			value: `/**
+		* @test text
+		*/`,
+			start: {
+				line: 1,
+				column: 2,
+			},
+			end: {
+				line: 3,
+				column: 4,
+			},
 		}]);
 	});
 

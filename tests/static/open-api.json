@@ -34,7 +34,7 @@
         }
       ],
       "post": {
-        "description": "Some description\nsecond lines",
+        "description": "Some description\n second lines",
         "requestBody": {
           "description": "Body desc",
           "content": {
