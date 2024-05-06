@@ -378,12 +378,14 @@ describe('libs', function () {
 			}
 		}]);
 
-		let modes = parseComments.createHandle({mode: parseComments.INNER_MODE});
-		modes(`  /**
+		let comments = parseComments({
+			mode: parseComments.INNER_MODE,
+			code: `  /**
 		* @test text
-		*/  `);
+		*/  `,
+		});
 
-		expect(modes.comments).to.eql([{
+		expect(comments).to.eql([{
 			value: `
 		* @test text
 		`,
@@ -399,12 +401,14 @@ describe('libs', function () {
 			},
 		}]);
 
-		modes = parseComments.createHandle({mode: parseComments.OUTER_MODE});
-		modes(`  /**
+		comments = parseComments({
+			mode: parseComments.OUTER_MODE,
+			code: `  /**
 		* @test text
-		*/  `);
+		*/  `
+		});
 
-		expect(modes.comments).to.eql([{
+		expect(comments).to.eql([{
 			value: `/**
 		* @test text
 		*/`,

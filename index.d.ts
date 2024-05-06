@@ -4,16 +4,23 @@ export function generateApiClient(endpoints: Endpoint[], file: string, options?:
 export function parseAnnotations(comment: string, options?: Partial<CliConfig>): ParsedAnnotation[];
 
 export type parseComments = {
-	CLEAN_MODE: 1,
-	INNER_MODE: 2,
-	OUTER_MODE: 3,
+	CLEAN_MODE: Modes.CLEAN,
+	INNER_MODE: Modes.INNER,
+	OUTER_MODE: Modes.OUTER,
 	createHandle: (params?: ParseCommentsParams) => ParseCommentsHandle,
-	(file: string, params?: ParseCommentsParams): Promise<ParsedComment[]>,
+	(filepath: string, params?: ParseCommentsParams): Promise<ParsedComment[]>,
+	(params: ParseCommentsParams & {code: string}): ParsedComment[],
 };
 
 export type ParseCommentsParams = {
-	mode?: 1 | 2 | 3,
+	mode?: Modes,
 };
+
+export enum Modes {
+	CLEAN = 1,
+	INNER = 2,
+	OUTER = 3,
+}
 
 export type ParseCommentsHandle = {
 	comments: ParsedComment[],
