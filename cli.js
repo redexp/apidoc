@@ -119,11 +119,7 @@ for (const path of defaultSchemasPaths) {
 	}
 }
 
-const defaultSchemas = {};
 
-for (const path of defaultSchemasPaths) {
-	Object.assign(defaultSchemas, require(path));
-}
 
 let files = getFiles(config.include);
 
@@ -139,14 +135,33 @@ if (config.namespace && !Array.isArray(config.namespace)) {
 	config.namespace = config.namespace.split(',').map(v => v.trim()).filter(v => !!v);
 }
 
-if (typeof config.extraProps === 'boolean') {
-	getProp(defaultSchemas.object, 'additionalProperties').value.value = config.extraProps;
-}
+Promise.all(
+	defaultSchemasPaths.map(path => {
+		let schema = require(path);
 
-const cache = {...defaultSchemas};
+		if (typeof schema === 'function') {
+			schema = schema();
+		}
 
-filesToEndpoints(files, {...config, schemas: cache})
-.then(function (endpoints) {
+		return schema;
+	})
+)
+.then(async function (schemasList) {
+	const defaultSchemas = {};
+
+	for (const schema of schemasList) {
+		Object.assign(defaultSchemas, schema);
+	}
+
+	if (typeof config.extraProps === 'boolean') {
+		getProp(defaultSchemas.object, 'additionalProperties').value.value = config.extraProps;
+	}
+
+	const cache = {...defaultSchemas};
+
+
+	let endpoints = await filesToEndpoints(files, {...config, schemas: cache});
+
 	if (config.namespace) {
 		let namespaces = config.namespace.reduce(function (hash, name) {
 			hash[name] = true;
